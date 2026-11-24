@@ -38,6 +38,10 @@
     min-width: 18em;
 }
 
+.timers-entry-start {
+    icon-size: 1em;
+}
+
 .timers-preview {
     font-size: 0.9em;
     padding: 0 4px;

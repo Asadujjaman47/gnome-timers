@@ -125,9 +125,8 @@ class TimersIndicator extends PanelMenu.Button {
         this._librarySeparator = new PopupMenu.PopupSeparatorMenuItem();
         this.menu.addMenuItem(this._librarySeparator);
         this._presets = new PresetsSection(deps);
-        this.menu.addMenuItem(this._presets.section);
         this._recent = new RecentSection(deps);
-        this.menu.addMenuItem(this._recent.section);
+        this._addScrollableSection([this._presets.section, this._recent.section]);
 
         this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
         const settingsItem = new PopupMenu.PopupImageMenuItem(_('Settings'), 'preferences-system-symbolic');
@@ -142,6 +141,33 @@ class TimersIndicator extends PanelMenu.Button {
             this._rebuildLibrary();
             this._focusInputLater();
         });
+    }
+
+    /**
+     * Presets and Recent can be long, so they scroll: GNOME caps the menu's
+     * height at the screen height, which only helps if part of it scrolls.
+     * The sections stay children of the menu (for activation and closing);
+     * only their container is moved into a scroll view.
+     *
+     * @param {PopupMenu.PopupMenuSection[]} sections
+     */
+    _addScrollableSection(sections) {
+        const container = new PopupMenu.PopupMenuSection();
+        this.menu.addMenuItem(container);
+        for (const section of sections)
+            container.addMenuItem(section);
+
+        const index = this.menu.box.get_children().indexOf(container.actor);
+        this.menu.box.remove_child(container.actor);
+        const scrollView = new St.ScrollView({
+            style_class: 'timers-library-scroll vfade',
+            hscrollbar_policy: St.PolicyType.NEVER,
+            vscrollbar_policy: St.PolicyType.AUTOMATIC,
+            overlay_scrollbars: true,
+            x_expand: true,
+            child: container.actor,
+        });
+        this.menu.box.insert_child_at_index(scrollView, index);
     }
 
     /**

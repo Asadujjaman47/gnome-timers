@@ -167,7 +167,7 @@ export class RecentSection {
                 can_focus: true,
                 y_align: Clutter.ActorAlign.CENTER,
                 accessible_name: _('Save as preset'),
-                child: new St.Icon({icon_name: 'starred-symbolic', style_class: 'popup-menu-icon'}),
+                child: new St.Icon({icon_name: 'non-starred-symbolic', style_class: 'popup-menu-icon'}),
             });
             save.connect('clicked', () => this.#library.saveAsPreset(entry.input));
             row.add_child(save);

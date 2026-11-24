@@ -72,7 +72,11 @@ class TimersTimerRow extends PopupMenu.PopupBaseMenuItem {
         this._name.text = this._formatter.rowName(timer, now, use12h);
         this._time.text = this._formatter.remaining(timer.remainingAt(now));
 
-        this._pauseButton.visible = timer.kind === 'countdown' && !timer.isFinished;
+        // Hidden but still taking its space, so times line up on every row.
+        const canPause = timer.kind === 'countdown' && !timer.isFinished;
+        this._pauseButton.opacity = canPause ? 255 : 0;
+        this._pauseButton.reactive = canPause;
+        this._pauseButton.can_focus = canPause;
         this._setButton(this._pauseButton, timer.isPaused
             ? ['media-playback-start-symbolic', _('Resume')]
             : ['media-playback-pause-symbolic', _('Pause')]);

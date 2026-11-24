@@ -54,11 +54,12 @@ class TimersSoundRow extends Adw.ComboRow {
         this._previewButton.connect('clicked', () => this._togglePreview());
         this.add_suffix(this._previewButton);
 
+        // Added as a prefix only while needed: even hidden, a prefix shifts
+        // the title out of line with the other rows.
         this._warning = new Gtk.Image({
             icon_name: 'dialog-warning-symbolic',
             tooltip_text: _('File not found; the default sound will be used'),
         });
-        this.add_prefix(this._warning);
 
         this.connect('notify::selected', () => this._onSelected());
         this.connect('destroy', () => this._player.destroy());
@@ -108,7 +109,10 @@ class TimersSoundRow extends Adw.ComboRow {
         }
 
         const missing = this._value?.startsWith('file://') && !soundFile(this._value);
-        this._warning.visible = Boolean(missing);
+        if (missing && !this._warning.get_parent())
+            this.add_prefix(this._warning);
+        else if (!missing && this._warning.get_parent())
+            this.remove(this._warning);
         this.subtitle = missing ? _('File not found; the default sound will be used') : this._subtitle;
     }
 
