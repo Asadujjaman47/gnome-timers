@@ -7,6 +7,7 @@ import {Formatter} from './src/core/format.js';
 import {TimerManager} from './src/core/timerManager.js';
 import {AlarmController} from './src/services/alarmController.js';
 import {ClockFormat} from './src/services/clockFormat.js';
+import {DoNotDisturb} from './src/services/doNotDisturb.js';
 import {Keybindings} from './src/services/keybindings.js';
 import {Notifier} from './src/services/notifier.js';
 import {SoundPlayer} from './src/services/soundPlayer.js';
@@ -33,7 +34,11 @@ export default class TimersExtension extends Extension {
         this._manager = new TimerManager({
             onSignalError: (name, e) => console.error(`Timers: "${name}" handler failed`, e),
         });
-        this._manager.load(storage.loadTimers());
+        this._saveId = this._manager.connect('changed',
+            () => storage.saveTimers(this._manager.timers));
+        // Finished timers were already announced, and nothing rings for them
+        // after a restart, so only running and paused timers are restored.
+        this._manager.load(storage.loadTimers().filter(timer => !timer.isFinished));
 
         this._player = new SoundPlayer();
         this._notifier = new Notifier({
@@ -45,12 +50,11 @@ export default class TimersExtension extends Extension {
             notifier: this._notifier,
             player: this._player,
             storage,
+            dnd: new DoNotDisturb(),
             formatter,
             clockFormat: this._clockFormat,
             extensionDir: this.dir,
         });
-        this._saveId = this._manager.connect('changed',
-            () => storage.saveTimers(this._manager.timers));
 
         this._ticker = new Ticker(this._manager);
         this._indicator = new TimersIndicator({

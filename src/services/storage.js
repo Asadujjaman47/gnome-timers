@@ -12,6 +12,7 @@ export const Keys = Object.freeze({
     RECENT: 'recent',
     DEFAULT_SOUND: 'default-sound',
     LOOP_SOUND: 'loop-sound',
+    SILENCE_IN_DND: 'silence-in-dnd',
     RECENT_SIZE: 'recent-size',
     OPEN_MENU_HOTKEY: 'open-menu-hotkey',
 });
@@ -99,6 +100,10 @@ export class Storage {
 
     set loopSound(value) {
         this.#settings.set_boolean(Keys.LOOP_SOUND, value);
+    }
+
+    get silenceInDnd() {
+        return this.#settings.get_boolean(Keys.SILENCE_IN_DND);
     }
 
     get recentSize() {

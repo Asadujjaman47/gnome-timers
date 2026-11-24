@@ -1,24 +1,25 @@
+import {LATE_LIMIT_MS, alarmBehavior} from '../core/alarm.js';
 import {resolveSound} from './sounds.js';
 
 /**
- * A timer that finished longer ago than this (e.g. while logged out) is
- * reported silently, with "Finished at …", instead of ringing.
- */
-export const LATE_LIMIT_MS = 60_000;
-
-/**
- * Reacts to finished timers: shows a notification and plays the sound.
- * Dismissing either the notification or the timer ends both; the sound stops
- * once no finished timer is left.
+ * Reacts to finished timers (see src/core/alarm.js for the rules):
+ *
+ * - default: play the sound once, show a notification, and remove the timer
+ *   right away; the notification stays in GNOME's notification list
+ * - "repeat until dismissed": loop the sound and keep the timer ("ringing")
+ *   until it is stopped from the menu or the notification
  */
 export class AlarmController {
     #manager;
     #notifier;
     #player;
     #storage;
+    #dnd;
     #formatter;
     #clockFormat;
     #extensionDir;
+    /** Ids of timers that are ringing until dismissed. */
+    #ringing = new Set();
     #ids = [];
 
     /**
@@ -27,15 +28,17 @@ export class AlarmController {
      * @param {import('./notifier.js').Notifier} deps.notifier
      * @param {import('./soundPlayer.js').SoundPlayer} deps.player
      * @param {import('./storage.js').Storage} deps.storage
+     * @param {import('./doNotDisturb.js').DoNotDisturb} deps.dnd
      * @param {import('../core/format.js').Formatter} deps.formatter
      * @param {import('./clockFormat.js').ClockFormat} deps.clockFormat
      * @param {import('gi://Gio').default.File} deps.extensionDir
      */
-    constructor({manager, notifier, player, storage, formatter, clockFormat, extensionDir}) {
+    constructor({manager, notifier, player, storage, dnd, formatter, clockFormat, extensionDir}) {
         this.#manager = manager;
         this.#notifier = notifier;
         this.#player = player;
         this.#storage = storage;
+        this.#dnd = dnd;
         this.#formatter = formatter;
         this.#clockFormat = clockFormat;
         this.#extensionDir = extensionDir;
@@ -50,29 +53,44 @@ export class AlarmController {
         for (const id of this.#ids)
             this.#manager.disconnect(id);
         this.#ids = [];
+        this.#ringing.clear();
     }
 
     /** @param {import('../core/timer.js').Timer} timer */
     #onFinished(timer) {
-        const use12h = this.#clockFormat.use12h;
         const late = this.#manager.now() - timer.finishedAt > LATE_LIMIT_MS;
+        const {playSound, ringUntilDismissed} = alarmBehavior({
+            late,
+            dndActive: this.#dnd.active,
+            silenceInDnd: this.#storage.silenceInDnd,
+            loopSound: this.#storage.loopSound,
+        });
+
+        const use12h = this.#clockFormat.use12h;
         const name = this.#formatter.timerName(timer, use12h);
         const duplicateName = this.#manager.timers.some(other =>
             other !== timer && this.#formatter.timerName(other, use12h) === name);
-
         this.#notifier.show(timer.id,
-            this.#formatter.notification(timer, {use12h, late, duplicateName}));
+            this.#formatter.notification(timer, {use12h, late, duplicateName}),
+            {stopAction: ringUntilDismissed});
 
-        if (!late) {
+        if (playSound) {
             const file = resolveSound(timer.sound, this.#storage.defaultSound, this.#extensionDir);
-            this.#player.play(file, {loop: this.#storage.loopSound});
+            this.#player.play(file, {loop: ringUntilDismissed});
         }
+
+        if (ringUntilDismissed)
+            this.#ringing.add(timer.id);
+        else
+            this.#manager.stop(timer.id);
     }
 
     /** @param {import('../core/timer.js').Timer} timer */
     #onRemoved(timer) {
+        if (!this.#ringing.delete(timer.id))
+            return;
         this.#notifier.close(timer.id);
-        if (!this.#manager.timers.some(t => t.isFinished))
+        if (this.#ringing.size === 0)
             this.#player.stop();
     }
 }

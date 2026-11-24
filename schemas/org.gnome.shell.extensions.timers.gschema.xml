@@ -35,6 +35,11 @@
       <summary>Loop sound until dismissed</summary>
       <description>If enabled, the alarm sound repeats until the finished timer is dismissed.</description>
     </key>
+    <key name="silence-in-dnd" type="b">
+      <default>false</default>
+      <summary>Silence alarms during Do Not Disturb</summary>
+      <description>If enabled, finished timers make no sound while Do Not Disturb is on. Their notification always follows Do Not Disturb.</description>
+    </key>
 
     <!-- Recent list -->
     <key name="recent-size" type="i">

@@ -18,8 +18,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Panel button and menu: type a time (with live preview), run several timers
   at once, pause/resume/stop each; the panel shows the most urgent timer and
   how many others are running.
-- Notification and sound when a timer finishes (Bell, Complete, Message or a
-  custom file; optional repeat until dismissed). Timers that finished while
+- When a timer finishes it plays its sound once (Bell, Complete, Message or a
+  custom file), shows a short notification and clears itself. With "Repeat
+  until stopped" it keeps ringing and gets a Stop button instead.
+- Notifications follow Do Not Disturb; the sound still plays unless
+  "Silence alarms during Do Not Disturb" is on. Timers that finished while
   logged out are reported silently.
 - Timers survive disabling the extension and restarting GNOME Shell.
 - Keyboard shortcut (default Ctrl+Super+T) opens the menu ready to type.

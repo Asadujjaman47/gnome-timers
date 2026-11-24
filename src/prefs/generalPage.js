@@ -50,11 +50,18 @@ class TimersGeneralPage extends Adw.PreferencesPage {
         group.add(soundRow);
 
         const loopRow = new Adw.SwitchRow({
-            title: _('Repeat until dismissed'),
-            subtitle: _('Keep ringing until the finished timer is stopped'),
+            title: _('Repeat until stopped'),
+            subtitle: _('Keep ringing and show a Stop button, instead of playing once'),
         });
         storage.settings.bind(Keys.LOOP_SOUND, loopRow, 'active', Gio.SettingsBindFlags.DEFAULT);
         group.add(loopRow);
+
+        const dndRow = new Adw.SwitchRow({
+            title: _('Silence alarms during Do Not Disturb'),
+            subtitle: _('Notifications always follow Do Not Disturb; this also mutes the sound'),
+        });
+        storage.settings.bind(Keys.SILENCE_IN_DND, dndRow, 'active', Gio.SettingsBindFlags.DEFAULT);
+        group.add(dndRow);
 
         return group;
     }

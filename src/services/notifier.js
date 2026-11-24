@@ -3,17 +3,20 @@ import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as MessageTray from 'resource:///org/gnome/shell/ui/messageTray.js';
 
 /**
- * Shows one notification per finished timer under a "Timers" source.
+ * Shows notifications for finished timers under a "Timers" source.
  *
- * Notifications are critical: they get through Do Not Disturb and stay on
- * screen until acknowledged, like an alarm clock. Acknowledging one (its
- * "Stop" button, clicking it, or closing it) calls `onDismissed(id)`.
+ * They are normal notifications: a short banner that then moves to the
+ * notification list, and no banner during Do Not Disturb (GNOME handles
+ * that). A notification shown with `stopAction` belongs to a timer that keeps
+ * ringing: it gets a Stop button, and acknowledging it (Stop, clicking it or
+ * closing it) calls `onDismissed(id)`.
  */
 export class Notifier {
     /** @type {MessageTray.Source|null} */
     #source = null;
+    /** Notifications of ringing timers, by timer id. */
     /** @type {Map<string, MessageTray.Notification>} */
-    #notifications = new Map();
+    #ringing = new Map();
     #icon;
     #onDismissed;
 
@@ -30,44 +33,47 @@ export class Notifier {
     /**
      * @param {string} id - timer id
      * @param {{title: string, body: string}} text
+     * @param {{stopAction?: boolean}} [options]
      */
-    show(id, {title, body}) {
+    show(id, {title, body}, {stopAction = false} = {}) {
         this.close(id);
 
         const source = this.#getSource();
         const notification = new MessageTray.Notification({source, title, body});
-        notification.urgency = MessageTray.Urgency.CRITICAL;
-        // The action's own handler has nothing to do: invoking an action
-        // destroys the notification, which the 'destroy' handler reports.
-        notification.addAction(_('Stop'), () => {});
-        notification.connect('destroy', (_n, reason) => {
-            if (this.#notifications.get(id) !== notification)
-                return;
-            this.#notifications.delete(id);
-            if (reason === MessageTray.NotificationDestroyedReason.DISMISSED)
-                this.#onDismissed(id);
-        });
 
-        this.#notifications.set(id, notification);
+        if (stopAction) {
+            // Invoking an action destroys the notification; the 'destroy'
+            // handler reports it, so the action itself has nothing to do.
+            notification.addAction(_('Stop'), () => {});
+            notification.connect('destroy', (_n, reason) => {
+                if (this.#ringing.get(id) !== notification)
+                    return;
+                this.#ringing.delete(id);
+                if (reason === MessageTray.NotificationDestroyedReason.DISMISSED)
+                    this.#onDismissed(id);
+            });
+            this.#ringing.set(id, notification);
+        }
+
         source.addNotification(notification);
     }
 
     /**
-     * Removes a timer's notification without reporting it as dismissed.
+     * Removes a ringing timer's notification (e.g. stopped from the menu)
+     * without reporting it as dismissed.
      *
      * @param {string} id
      */
     close(id) {
-        const notification = this.#notifications.get(id);
+        const notification = this.#ringing.get(id);
         if (!notification)
             return;
-        this.#notifications.delete(id);
+        this.#ringing.delete(id);
         notification.destroy(MessageTray.NotificationDestroyedReason.SOURCE_CLOSED);
     }
 
     destroy() {
-        for (const id of [...this.#notifications.keys()])
-            this.close(id);
+        this.#ringing.clear();
         this.#source?.destroy(MessageTray.NotificationDestroyedReason.SOURCE_CLOSED);
         this.#source = null;
     }

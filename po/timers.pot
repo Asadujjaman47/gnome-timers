@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Timers\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-24 20:36+0600\n"
+"POT-Creation-Date: 2026-11-24 20:55+0600\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -110,11 +110,11 @@ msgstr ""
 msgid "Dismiss"
 msgstr ""
 
-#: src/ui/timerRow.js:73 src/services/notifier.js:42
+#: src/ui/timerRow.js:73 src/services/notifier.js:47
 msgid "Stop"
 msgstr ""
 
-#: src/ui/indicator.js:36 src/services/notifier.js:77
+#: src/ui/indicator.js:36 src/services/notifier.js:83
 msgid "Timers"
 msgstr ""
 
@@ -187,37 +187,45 @@ msgid "Used by timers without a sound of their own"
 msgstr ""
 
 #: src/prefs/generalPage.js:53
-msgid "Repeat until dismissed"
+msgid "Repeat until stopped"
 msgstr ""
 
 #: src/prefs/generalPage.js:54
-msgid "Keep ringing until the finished timer is stopped"
+msgid "Keep ringing and show a Stop button, instead of playing once"
 msgstr ""
 
-#: src/prefs/generalPage.js:63
+#: src/prefs/generalPage.js:60
+msgid "Silence alarms during Do Not Disturb"
+msgstr ""
+
+#: src/prefs/generalPage.js:61
+msgid "Notifications always follow Do Not Disturb; this also mutes the sound"
+msgstr ""
+
+#: src/prefs/generalPage.js:70
 msgid "Keyboard shortcut"
 msgstr ""
 
-#: src/prefs/generalPage.js:65
+#: src/prefs/generalPage.js:72
 msgid "Open the timers menu"
 msgstr ""
 
-#: src/prefs/generalPage.js:66
+#: src/prefs/generalPage.js:73
 msgid "Opens the menu ready to type a time"
 msgstr ""
 
-#: src/prefs/generalPage.js:74
+#: src/prefs/generalPage.js:81
 msgid "About"
 msgstr ""
 
-#: src/prefs/generalPage.js:76
+#: src/prefs/generalPage.js:83
 msgid "Version"
 msgstr ""
 
-#: src/prefs/generalPage.js:81
+#: src/prefs/generalPage.js:88
 msgid "Project page"
 msgstr ""
 
-#: src/prefs/generalPage.js:86
+#: src/prefs/generalPage.js:93
 msgid "Open"
 msgstr ""
