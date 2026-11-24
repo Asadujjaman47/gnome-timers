@@ -95,6 +95,45 @@ test('notification text when late, or when names clash', () => {
         {title: '5 min (started 14:02)', body: 'Timer finished'});
 });
 
+function runningTimer(input, now) {
+    return Timer.create({id: 'x', spec: parseInput(input).spec, input, now});
+}
+
+test('alarmTime: today or tomorrow, in the clock format', () => {
+    const now = localTime(2026, 11, 24, 13, 0);
+    assert.equal(f.alarmTime(runningTimer('@14:30', now), now, false), '14:30');
+    assert.equal(f.alarmTime(runningTimer('@7', now), now, false), 'tomorrow 07:00');
+    assert.equal(f.alarmTime(runningTimer('@7', now), now, true), 'tomorrow 7:00 AM');
+});
+
+test('alarmTime: "tomorrow" disappears once that day has come', () => {
+    const now = localTime(2026, 11, 24, 23, 0);
+    const alarm = runningTimer('@7', now);
+    assert.equal(f.alarmTime(alarm, now, false), 'tomorrow 07:00');
+    assert.equal(f.alarmTime(alarm, localTime(2026, 11, 25, 0, 1), false), '07:00');
+});
+
+test('rowName: alarms always show when they ring', () => {
+    const now = localTime(2026, 11, 24, 13, 0);
+    assert.equal(f.rowName(runningTimer('@14:30 meeting', now), now, false), 'Meeting · 14:30');
+    assert.equal(f.rowName(runningTimer('@14:30', now), now, false), 'Alarm 14:30');
+    assert.equal(f.rowName(runningTimer('@7', now), now, false), 'Alarm tomorrow 07:00');
+    assert.equal(f.rowName(runningTimer('@7 gym', now), now, true), 'Gym · tomorrow 7:00 AM');
+    assert.equal(f.rowName(runningTimer('12m pizza', now), now, false), 'Pizza');
+    assert.equal(f.rowName(runningTimer('25m', now), now, false), '25 min');
+});
+
+test('panelText: clock time for running alarms, time left otherwise', () => {
+    const now = localTime(2026, 11, 24, 13, 0);
+    assert.equal(f.panelText(runningTimer('@14:30', now), now, false), '14:30');
+    assert.equal(f.panelText(runningTimer('@14:30', now), now, true), '2:30 PM');
+    assert.equal(f.panelText(runningTimer('25m', now), now + MINUTE, false), '24:00');
+
+    const finished = runningTimer('@13:01', now);
+    finished.checkFinished(now + MINUTE);
+    assert.equal(f.panelText(finished, now + MINUTE, false), '0:00');
+});
+
 test('all text goes through the given gettext function', () => {
     const translated = new Formatter({gettext: s => `[${s}]`});
     assert.equal(translated.duration(HOUR + MINUTE), '[1 h] [1 min]');

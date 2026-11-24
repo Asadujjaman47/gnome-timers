@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Timers\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-24 20:55+0600\n"
+"POT-Creation-Date: 2026-11-24 21:38+0600\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -40,77 +40,82 @@ msgstr ""
 msgid "PM"
 msgstr ""
 
-#: src/core/format.js:136
+#: src/core/format.js:100
 #, javascript-format
-msgid "%s (started %s)"
+msgid "tomorrow %s"
 msgstr ""
 
-#: src/core/format.js:143
+#: src/core/format.js:118 src/core/format.js:228
 #, javascript-format
-msgid "Finished at %s"
-msgstr ""
-
-#: src/core/format.js:146
-#, javascript-format
-msgid "Alarm at %s"
-msgstr ""
-
-#: src/core/format.js:147
-msgid "Time is up"
-msgstr ""
-
-#: src/core/format.js:150
-#, javascript-format
-msgid "%s timer finished"
-msgstr ""
-
-#: src/core/format.js:151
-msgid "Timer finished"
-msgstr ""
-
-#: src/core/format.js:167
-msgid "The time must be longer than zero"
-msgstr ""
-
-#: src/core/format.js:169
-msgid "The longest timer is 99 hours"
-msgstr ""
-
-#: src/core/format.js:171
-msgid "Not a valid clock time"
-msgstr ""
-
-#: src/core/format.js:173
-msgid "Type a time like 5m, 1:30 or @14:30"
-msgstr ""
-
-#: src/core/format.js:181
-#, javascript-format
-msgid "Alarm tomorrow %s"
+msgid "Alarm %s"
 msgstr ""
 
 #: src/core/format.js:182
 #, javascript-format
-msgid "Alarm %s"
+msgid "%s (started %s)"
+msgstr ""
+
+#: src/core/format.js:189
+#, javascript-format
+msgid "Finished at %s"
+msgstr ""
+
+#: src/core/format.js:192
+#, javascript-format
+msgid "Alarm at %s"
+msgstr ""
+
+#: src/core/format.js:193
+msgid "Time is up"
+msgstr ""
+
+#: src/core/format.js:196
+#, javascript-format
+msgid "%s timer finished"
+msgstr ""
+
+#: src/core/format.js:197
+msgid "Timer finished"
+msgstr ""
+
+#: src/core/format.js:213
+msgid "The time must be longer than zero"
+msgstr ""
+
+#: src/core/format.js:215
+msgid "The longest timer is 99 hours"
+msgstr ""
+
+#: src/core/format.js:217
+msgid "Not a valid clock time"
+msgstr ""
+
+#: src/core/format.js:219
+msgid "Type a time like 5m, 1:30 or @14:30"
+msgstr ""
+
+#: src/core/format.js:227
+#, javascript-format
+msgid "Alarm tomorrow %s"
 msgstr ""
 
 #: src/ui/inputItem.js:35
 msgid "5m, 1:30, 12m pizza, @14:30"
 msgstr ""
 
-#: src/ui/timerRow.js:69
+#: src/ui/timerRow.js:77
 msgid "Resume"
 msgstr ""
 
-#: src/ui/timerRow.js:70
+#: src/ui/timerRow.js:78
 msgid "Pause"
 msgstr ""
 
-#: src/ui/timerRow.js:72
+#: src/ui/timerRow.js:80
 msgid "Dismiss"
 msgstr ""
 
-#: src/ui/timerRow.js:73 src/services/notifier.js:47
+#: src/ui/timerRow.js:81 src/services/notifier.js:47
 msgid "Stop"
 msgstr ""
 
@@ -118,7 +123,7 @@ msgstr ""
 msgid "Timers"
 msgstr ""
 
-#: src/ui/indicator.js:100
+#: src/ui/indicator.js:112
 msgid "Settings"
 msgstr ""
 

@@ -10,6 +10,7 @@ import {TimerRow} from './timerRow.js';
 export class TimersSection {
     #manager;
     #formatter;
+    #timerIcon;
     /** @type {TimerRow[]} */
     #rows = [];
 
@@ -17,10 +18,12 @@ export class TimersSection {
      * @param {object} deps
      * @param {import('../core/timerManager.js').TimerManager} deps.manager
      * @param {import('../core/format.js').Formatter} deps.formatter
+     * @param {import('gi://Gio').default.Icon} deps.timerIcon
      */
-    constructor({manager, formatter}) {
+    constructor({manager, formatter, timerIcon}) {
         this.#manager = manager;
         this.#formatter = formatter;
+        this.#timerIcon = timerIcon;
         this.section = new PopupMenu.PopupMenuSection();
     }
 
@@ -34,8 +37,11 @@ export class TimersSection {
         const ids = timers.map(t => t.id);
         if (ids.join() !== this.#rows.map(r => r.timerId).join()) {
             this.section.removeAll();
-            this.#rows = timers.map(timer =>
-                new TimerRow(timer, {manager: this.#manager, formatter: this.#formatter}));
+            this.#rows = timers.map(timer => new TimerRow(timer, {
+                manager: this.#manager,
+                formatter: this.#formatter,
+                timerIcon: this.#timerIcon,
+            }));
             for (const row of this.#rows)
                 this.section.addMenuItem(row);
         }

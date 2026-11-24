@@ -19,11 +19,18 @@ class TimersTimerRow extends PopupMenu.PopupBaseMenuItem {
      * @param {object} deps
      * @param {import('../core/timerManager.js').TimerManager} deps.manager
      * @param {import('../core/format.js').Formatter} deps.formatter
+     * @param {import('gi://Gio').default.Icon} deps.timerIcon - the hourglass
      */
-    _init(timer, {manager, formatter}) {
+    _init(timer, {manager, formatter, timerIcon}) {
         super._init({activate: false, can_focus: false, style_class: 'timers-row'});
         this._timer = timer;
         this._formatter = formatter;
+
+        // Hourglass for countdowns, alarm clock for alarms.
+        const icon = timer.kind === 'alarm'
+            ? new St.Icon({icon_name: 'alarm-symbolic'})
+            : new St.Icon({gicon: timerIcon});
+        icon.add_style_class_name('popup-menu-icon');
 
         this._name = new St.Label({
             style_class: 'timers-row-name',
@@ -45,6 +52,7 @@ class TimersTimerRow extends PopupMenu.PopupBaseMenuItem {
         });
         this._stopButton = this._makeButton(() => manager.stop(this._timer.id));
 
+        this.add_child(icon);
         this.add_child(this._name);
         this.add_child(this._time);
         this.add_child(this._pauseButton);
@@ -61,7 +69,7 @@ class TimersTimerRow extends PopupMenu.PopupBaseMenuItem {
      */
     sync(now, use12h) {
         const timer = this._timer;
-        this._name.text = this._formatter.timerName(timer, use12h);
+        this._name.text = this._formatter.rowName(timer, now, use12h);
         this._time.text = this._formatter.remaining(timer.remainingAt(now));
 
         this._pauseButton.visible = timer.kind === 'countdown' && !timer.isFinished;

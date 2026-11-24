@@ -87,6 +87,52 @@ export class Formatter {
     }
 
     /**
+     * When an alarm rings, relative to now: "14:30" or "tomorrow 07:00".
+     *
+     * @param {import('./timer.js').Timer} timer - an alarm
+     * @param {number} now
+     * @param {boolean} use12h
+     */
+    alarmTime(timer, now, use12h) {
+        const _ = this.#gettext;
+        const time = this.clock(timer.hours, timer.minutes, use12h);
+        const at = timer.endsAt ?? timer.finishedAt;
+        return isLaterDay(at, now) ? _('tomorrow %s').replace('%s', time) : time;
+    }
+
+    /**
+     * Name for a timer's menu row. Alarms always show when they ring:
+     * "Meeting · 14:30", "Alarm tomorrow 07:00". Countdowns use `timerName`.
+     *
+     * @param {import('./timer.js').Timer} timer
+     * @param {number} now
+     * @param {boolean} use12h
+     */
+    rowName(timer, now, use12h) {
+        const _ = this.#gettext;
+        if (timer.kind !== 'alarm')
+            return this.timerName(timer, use12h);
+        const when = this.alarmTime(timer, now, use12h);
+        return timer.label
+            ? `${timer.label} · ${when}`
+            : _('Alarm %s').replace('%s', when);
+    }
+
+    /**
+     * Text in the top bar for the panel's main timer: a running alarm shows
+     * its clock time ("07:00"), everything else the time left.
+     *
+     * @param {import('./timer.js').Timer} timer
+     * @param {number} now
+     * @param {boolean} use12h
+     */
+    panelText(timer, now, use12h) {
+        if (timer.kind === 'alarm' && timer.isRunning)
+            return this.clock(timer.hours, timer.minutes, use12h);
+        return this.remaining(timer.remainingAt(now));
+    }
+
+    /**
      * Live preview under the input: "12 min · Pizza", "Alarm tomorrow 07:00".
      *
      * @param {import('./parser.js').TimerSpec} spec
@@ -185,4 +231,12 @@ export class Formatter {
 
 function pad(n) {
     return String(n).padStart(2, '0');
+}
+
+/** Whether `at` falls on a later calendar day than `now` (local time). */
+function isLaterDay(at, now) {
+    const a = new Date(at);
+    const n = new Date(now);
+    return at > now && (a.getFullYear() !== n.getFullYear() ||
+        a.getMonth() !== n.getMonth() || a.getDate() !== n.getDate());
 }

@@ -64,3 +64,8 @@
 .timers-row-button {
     padding: 4px;
 }
+
+/* The alarm icon sits right next to its clock time in the panel. */
+.timers-panel-alarm-icon {
+    padding-right: 0;
+}

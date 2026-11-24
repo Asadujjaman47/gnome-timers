@@ -39,8 +39,9 @@ class TimersIndicator extends PanelMenu.Button {
         this._formatter = formatter;
         this._clockFormat = clockFormat;
         this._focusId = 0;
+        this._timerIcon = Gio.icon_new_for_string(`${extension.path}/${ICON_FILE}`);
 
-        this._buildPanel(extension);
+        this._buildPanel();
         this._buildMenu(extension);
 
         this._managerId = manager.connect('changed', () => this._sync());
@@ -63,10 +64,15 @@ class TimersIndicator extends PanelMenu.Button {
             this.menu.open();
     }
 
-    _buildPanel(extension) {
+    _buildPanel() {
         this._icon = new St.Icon({
-            gicon: Gio.icon_new_for_string(`${extension.path}/${ICON_FILE}`),
+            gicon: this._timerIcon,
             style_class: 'system-status-icon',
+        });
+        // Shown next to the clock time when the panel's main timer is an alarm.
+        this._alarmIcon = new St.Icon({
+            icon_name: 'alarm-symbolic',
+            style_class: 'system-status-icon timers-panel-alarm-icon',
         });
         this._timeLabel = new St.Label({
             style_class: 'timers-panel-time',
@@ -79,13 +85,19 @@ class TimersIndicator extends PanelMenu.Button {
 
         const box = new St.BoxLayout({style_class: 'timers-panel-box'});
         box.add_child(this._icon);
+        box.add_child(this._alarmIcon);
         box.add_child(this._timeLabel);
         box.add_child(this._countLabel);
         this.add_child(box);
     }
 
     _buildMenu(extension) {
-        const deps = {manager: this._manager, formatter: this._formatter, clockFormat: this._clockFormat};
+        const deps = {
+            manager: this._manager,
+            formatter: this._formatter,
+            clockFormat: this._clockFormat,
+            timerIcon: this._timerIcon,
+        };
 
         this._input = new InputItem(deps);
         this._input.connect('started', () => this.menu.close());
@@ -125,14 +137,16 @@ class TimersIndicator extends PanelMenu.Button {
 
     _sync() {
         const use12h = this._clockFormat.use12h;
+        const now = this._manager.now();
         const {state, primary, others} = this._manager.summary();
         const idle = state === SummaryState.IDLE;
 
         this._icon.visible = idle;
+        this._alarmIcon.visible = !idle && primary.kind === 'alarm' && primary.isRunning;
         this._timeLabel.visible = !idle;
         this._countLabel.visible = !idle && others > 0;
         if (!idle) {
-            this._timeLabel.text = this._formatter.remaining(primary.remainingAt(this._manager.now()));
+            this._timeLabel.text = this._formatter.panelText(primary, now, use12h);
             this._countLabel.text = `+${others}`;
         }
         setDimmed(this._timeLabel, state === SummaryState.PAUSED);
@@ -140,6 +154,10 @@ class TimersIndicator extends PanelMenu.Button {
 
         this._timers.sync(use12h);
         this._timersSeparator.visible = !this._timers.isEmpty;
+
+        // Keep the preview current ("tomorrow", 12/24 h) while the menu is open.
+        if (this.menu.isOpen)
+            this._input.refresh();
     }
 
     /** Display-only while the screen is locked. */
