@@ -7,6 +7,8 @@
 #
 # Needs podman. The image is built once and reused; remove it with
 #   podman rmi localhost/timers-compat:<target>
+# Only the screenshots and logs are kept; the session folder used inside the
+# container is deleted there.
 set -euo pipefail
 
 TARGET=${1:?usage: tools/compat/run.sh <target>}
@@ -34,4 +36,8 @@ podman run --rm "${devices[@]}" \
     bash -c 'echo "GNOME Shell in container: $(gnome-shell --version)"
              # GNOME Shell needs a system bus (e.g. for the login manager).
              mkdir -p /run/dbus && dbus-daemon --system --fork
-             tools/screenshots/run.sh "build/$1.shell-extension.zip" "$1"' _ "$UUID"
+             tools/screenshots/run.sh "build/$1.shell-extension.zip" "$1" || status=$?
+             # Files unpacked in the container belong to a user that only
+             # exists in the container, so remove them from inside it.
+             rm -rf "$TIMERS_SCREENSHOTS_OUT-session"
+             exit "${status:-0}"' _ "$UUID"
