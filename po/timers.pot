@@ -8,13 +8,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Timers\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-24 20:10+0600\n"
+"POT-Creation-Date: 2026-11-24 20:36+0600\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
 #: src/core/format.js:52
@@ -40,56 +40,184 @@ msgstr ""
 msgid "PM"
 msgstr ""
 
-#: src/core/format.js:115
+#: src/core/format.js:136
+#, javascript-format
+msgid "%s (started %s)"
+msgstr ""
+
+#: src/core/format.js:143
+#, javascript-format
+msgid "Finished at %s"
+msgstr ""
+
+#: src/core/format.js:146
+#, javascript-format
+msgid "Alarm at %s"
+msgstr ""
+
+#: src/core/format.js:147
+msgid "Time is up"
+msgstr ""
+
+#: src/core/format.js:150
+#, javascript-format
+msgid "%s timer finished"
+msgstr ""
+
+#: src/core/format.js:151
+msgid "Timer finished"
+msgstr ""
+
+#: src/core/format.js:167
 msgid "The time must be longer than zero"
 msgstr ""
 
-#: src/core/format.js:117
+#: src/core/format.js:169
 msgid "The longest timer is 99 hours"
 msgstr ""
 
-#: src/core/format.js:119
+#: src/core/format.js:171
 msgid "Not a valid clock time"
 msgstr ""
 
-#: src/core/format.js:121
+#: src/core/format.js:173
 msgid "Type a time like 5m, 1:30 or @14:30"
 msgstr ""
 
-#: src/core/format.js:129
+#: src/core/format.js:181
 #, javascript-format
 msgid "Alarm tomorrow %s"
 msgstr ""
 
-#: src/core/format.js:130
+#: src/core/format.js:182
 #, javascript-format
 msgid "Alarm %s"
 msgstr ""
 
-#: src/ui/indicator.js:21
+#: src/ui/inputItem.js:35
+msgid "5m, 1:30, 12m pizza, @14:30"
+msgstr ""
+
+#: src/ui/timerRow.js:69
+msgid "Resume"
+msgstr ""
+
+#: src/ui/timerRow.js:70
+msgid "Pause"
+msgstr ""
+
+#: src/ui/timerRow.js:72
+msgid "Dismiss"
+msgstr ""
+
+#: src/ui/timerRow.js:73 src/services/notifier.js:42
+msgid "Stop"
+msgstr ""
+
+#: src/ui/indicator.js:36 src/services/notifier.js:77
 msgid "Timers"
 msgstr ""
 
-#: src/ui/indicator.js:29
+#: src/ui/indicator.js:100
 msgid "Settings"
 msgstr ""
 
-#: src/prefs/generalPage.js:19
+#: src/prefs/widgets/soundRow.js:15
+msgid "Bell"
+msgstr ""
+
+#: src/prefs/widgets/soundRow.js:16
+msgid "Complete"
+msgstr ""
+
+#: src/prefs/widgets/soundRow.js:17
+msgid "Message"
+msgstr ""
+
+#: src/prefs/widgets/soundRow.js:51
+msgid "Play"
+msgstr ""
+
+#: src/prefs/widgets/soundRow.js:59 src/prefs/widgets/soundRow.js:94
+msgid "File not found; the default sound will be used"
+msgstr ""
+
+#: src/prefs/widgets/soundRow.js:78
+msgid "Default"
+msgstr ""
+
+#: src/prefs/widgets/soundRow.js:85
+msgid "Other file…"
+msgstr ""
+
+#: src/prefs/widgets/soundRow.js:117
+msgid "Sound files"
+msgstr ""
+
+#: src/prefs/widgets/soundRow.js:121
+msgid "Choose a sound file"
+msgstr ""
+
+#: src/prefs/widgets/hotkeyRow.js:33
+msgid "Remove shortcut"
+msgstr ""
+
+#: src/prefs/widgets/hotkeyRow.js:59
+msgid "Press a shortcut… (Esc cancels, Backspace clears)"
+msgstr ""
+
+#: src/prefs/widgets/hotkeyRow.js:60
+msgid "Disabled"
+msgstr ""
+
+#: src/prefs/generalPage.js:25
 msgid "General"
 msgstr ""
 
-#: src/prefs/generalPage.js:24
-msgid "About"
-msgstr ""
-
-#: src/prefs/generalPage.js:28
-msgid "Version"
-msgstr ""
-
-#: src/prefs/generalPage.js:33
-msgid "Project page"
+#: src/prefs/generalPage.js:35
+msgid "Sound"
 msgstr ""
 
 #: src/prefs/generalPage.js:38
+msgid "Alarm sound"
+msgstr ""
+
+#: src/prefs/generalPage.js:39
+msgid "Used by timers without a sound of their own"
+msgstr ""
+
+#: src/prefs/generalPage.js:53
+msgid "Repeat until dismissed"
+msgstr ""
+
+#: src/prefs/generalPage.js:54
+msgid "Keep ringing until the finished timer is stopped"
+msgstr ""
+
+#: src/prefs/generalPage.js:63
+msgid "Keyboard shortcut"
+msgstr ""
+
+#: src/prefs/generalPage.js:65
+msgid "Open the timers menu"
+msgstr ""
+
+#: src/prefs/generalPage.js:66
+msgid "Opens the menu ready to type a time"
+msgstr ""
+
+#: src/prefs/generalPage.js:74
+msgid "About"
+msgstr ""
+
+#: src/prefs/generalPage.js:76
+msgid "Version"
+msgstr ""
+
+#: src/prefs/generalPage.js:81
+msgid "Project page"
+msgstr ""
+
+#: src/prefs/generalPage.js:86
 msgid "Open"
 msgstr ""

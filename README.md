@@ -3,8 +3,8 @@
 A GNOME Shell extension for running multiple countdown timers and clock-time
 alarms from the top panel.
 
-> **Status:** early development. The extension currently shows its panel icon
-> and preferences window; timer features are being built.
+> **Status:** in development. Multiple timers, clock-time alarms, notifications,
+> sounds and the keyboard shortcut work; presets and the Recent list are next.
 
 ## Planned features
 
@@ -44,14 +44,15 @@ npm ci          # install ESLint
 make check      # lint + unit tests + schema check (same as CI)
 make test       # unit tests only; `gjs -m tests/run.js parser` filters by file
 make pack       # build build/timers@asadujjaman47.github.io.shell-extension.zip
-make run        # install and start a nested GNOME Shell session
+make run        # start a nested GNOME Shell with the extension (own settings)
 make pot        # regenerate the translation template
 ```
 
 `make run` starts a separate GNOME Shell in a window, which picks up code
-changes without logging out. It uses `gnome-shell --devkit` on GNOME 49+
-(install `mutter-devkit`, e.g. `sudo dnf install mutter-devkit`) and
-`--nested` on older versions.
+changes without logging out. It has its own settings in `build/run/`, so it
+never touches your real session; delete that folder for a fresh start.
+It uses `gnome-shell --devkit` on GNOME 49+ (install `mutter-devkit`, e.g.
+`sudo dnf install mutter-devkit`) and `--nested` on older versions.
 
 Logs from the running extension:
 

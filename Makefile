@@ -21,7 +21,7 @@ help:
 	@echo "  pack       build $(ZIP)"
 	@echo "  install    pack and install for the current user"
 	@echo "  enable     enable the extension (after re-login on Wayland)"
-	@echo "  run        install and start a nested GNOME Shell for testing"
+	@echo "  run        start a nested GNOME Shell with the extension (own settings in build/run)"
 	@echo "  pot        regenerate po/timers.pot"
 	@echo "  clean      remove build output"
 
@@ -66,9 +66,8 @@ disable:
 uninstall:
 	gnome-extensions uninstall $(UUID)
 
-run: install
-	@echo "Starting nested GNOME Shell ($(NESTED_FLAG)). Close its window to stop."
-	dbus-run-session -- gnome-shell $(NESTED_FLAG) --wayland
+run: pack
+	tools/run-nested.sh $(ZIP) $(UUID) $(NESTED_FLAG)
 
 pot:
 	xgettext --from-code=UTF-8 --language=JavaScript \

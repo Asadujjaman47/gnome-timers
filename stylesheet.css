@@ -3,3 +3,64 @@
  * All classes are prefixed with "timers-". Only accent colours are set;
  * text colours are inherited so the extension follows light and dark themes.
  */
+
+/* Panel */
+.timers-panel-box {
+    spacing: 4px;
+}
+
+.timers-panel-time {
+    font-feature-settings: "tnum";
+}
+
+.timers-panel-count {
+    font-size: 0.85em;
+    font-weight: bold;
+}
+
+/* The top bar is dark in every GNOME style, so a light red reads well. */
+.timers-panel-time.timers-finished {
+    color: #ff7b63;
+    font-weight: bold;
+}
+
+/* Menu: input */
+.timers-input-item {
+    padding-top: 6px;
+    padding-bottom: 6px;
+}
+
+.timers-input-box {
+    spacing: 4px;
+}
+
+.timers-entry {
+    min-width: 18em;
+}
+
+.timers-preview {
+    font-size: 0.9em;
+    padding: 0 4px;
+}
+
+.timers-preview-error {
+    color: #e01b24;
+}
+
+/* Menu: timer rows */
+.timers-row {
+    spacing: 6px;
+}
+
+.timers-row-time {
+    font-feature-settings: "tnum";
+}
+
+.timers-row.timers-finished .timers-row-name,
+.timers-row.timers-finished .timers-row-time {
+    font-weight: bold;
+}
+
+.timers-row-button {
+    padding: 4px;
+}

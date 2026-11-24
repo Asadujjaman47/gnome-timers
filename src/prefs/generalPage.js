@@ -1,30 +1,78 @@
 import Adw from 'gi://Adw';
+import Gio from 'gi://Gio';
 import GObject from 'gi://GObject';
 import Gtk from 'gi://Gtk';
 
 import {gettext as _} from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
 
+import {Keys} from '../services/storage.js';
+import {HotkeyRow} from './widgets/hotkeyRow.js';
+import {SoundRow} from './widgets/soundRow.js';
+
 /**
- * "General" preferences page. Sound, recent-list and hotkey settings are added
- * here in later milestones.
+ * "General" preferences: alarm sound, keyboard shortcut, about.
  */
 export const GeneralPage = GObject.registerClass(
-class GeneralPage extends Adw.PreferencesPage {
+class TimersGeneralPage extends Adw.PreferencesPage {
     /**
-     * @param {import('gi://Gio').default.Settings} settings
-     * @param {object} metadata - the extension's metadata.json
+     * @param {object} args
+     * @param {import('../services/storage.js').Storage} args.storage
+     * @param {object} args.metadata - the extension's metadata.json
+     * @param {Gio.File} args.extensionDir
      */
-    _init(settings, metadata) {
+    _init({storage, metadata, extensionDir}) {
         super._init({
             title: _('General'),
             icon_name: 'preferences-system-symbolic',
         });
-        this._settings = settings;
 
-        const aboutGroup = new Adw.PreferencesGroup({title: _('About')});
-        this.add(aboutGroup);
+        this.add(this._soundGroup(storage, extensionDir));
+        this.add(this._shortcutGroup(storage));
+        this.add(this._aboutGroup(metadata));
+    }
 
-        aboutGroup.add(new Adw.ActionRow({
+    _soundGroup(storage, extensionDir) {
+        const group = new Adw.PreferencesGroup({title: _('Sound')});
+
+        const soundRow = new SoundRow({
+            title: _('Alarm sound'),
+            subtitle: _('Used by timers without a sound of their own'),
+            value: storage.defaultSound,
+            onChanged: value => {
+                storage.defaultSound = value;
+            },
+            getDefaultSound: () => storage.defaultSound,
+            extensionDir,
+        });
+        const changedId = storage.connectChanged(Keys.DEFAULT_SOUND,
+            () => soundRow.setValue(storage.defaultSound));
+        soundRow.connect('destroy', () => storage.disconnect(changedId));
+        group.add(soundRow);
+
+        const loopRow = new Adw.SwitchRow({
+            title: _('Repeat until dismissed'),
+            subtitle: _('Keep ringing until the finished timer is stopped'),
+        });
+        storage.settings.bind(Keys.LOOP_SOUND, loopRow, 'active', Gio.SettingsBindFlags.DEFAULT);
+        group.add(loopRow);
+
+        return group;
+    }
+
+    _shortcutGroup(storage) {
+        const group = new Adw.PreferencesGroup({title: _('Keyboard shortcut')});
+        group.add(new HotkeyRow({
+            title: _('Open the timers menu'),
+            subtitle: _('Opens the menu ready to type a time'),
+            storage,
+            key: Keys.OPEN_MENU_HOTKEY,
+        }));
+        return group;
+    }
+
+    _aboutGroup(metadata) {
+        const group = new Adw.PreferencesGroup({title: _('About')});
+        group.add(new Adw.ActionRow({
             title: _('Version'),
             subtitle: metadata['version-name'] ?? String(metadata.version ?? ''),
         }));
@@ -38,6 +86,7 @@ class GeneralPage extends Adw.PreferencesPage {
             label: _('Open'),
             valign: Gtk.Align.CENTER,
         }));
-        aboutGroup.add(projectRow);
+        group.add(projectRow);
+        return group;
     }
 });

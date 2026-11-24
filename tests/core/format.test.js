@@ -2,6 +2,7 @@ import {test, assert} from '../harness.js';
 import {HOUR, MINUTE, SECOND, localTime} from '../helpers.js';
 import {Formatter} from '../../src/core/format.js';
 import {ParseError, parseInput} from '../../src/core/parser.js';
+import {Timer} from '../../src/core/timer.js';
 
 const f = new Formatter();
 const spec = input => parseInput(input).spec;
@@ -66,6 +67,32 @@ test('parse error messages; empty input shows nothing', () => {
     assert.equal(f.parseError(ParseError.EMPTY), '');
     for (const error of [ParseError.INVALID, ParseError.ZERO, ParseError.TOO_LONG, ParseError.INVALID_TIME])
         assert.ok(f.parseError(error).length > 0, error);
+});
+
+function finishedTimer(input, startedAt = localTime(2026, 11, 24, 14, 2)) {
+    const timer = Timer.create({id: 'x', spec: parseInput(input).spec, input, now: startedAt});
+    timer.checkFinished(timer.endsAt);
+    return timer;
+}
+
+test('notification text for countdowns and alarms, labelled or not', () => {
+    const opts = {use12h: false};
+    assert.deepEqual(f.notification(finishedTimer('12m pizza'), opts),
+        {title: 'Pizza', body: '12 min timer finished'});
+    assert.deepEqual(f.notification(finishedTimer('25m'), opts),
+        {title: '25 min', body: 'Timer finished'});
+    assert.deepEqual(f.notification(finishedTimer('@14:30 meeting'), opts),
+        {title: 'Meeting', body: 'Alarm at 14:30'});
+    assert.deepEqual(f.notification(finishedTimer('@14:30'), {use12h: true}),
+        {title: 'Alarm 2:30 PM', body: 'Time is up'});
+});
+
+test('notification text when late, or when names clash', () => {
+    const timer = finishedTimer('5m');
+    assert.deepEqual(f.notification(timer, {use12h: false, late: true}),
+        {title: '5 min', body: 'Finished at 14:07'});
+    assert.deepEqual(f.notification(timer, {use12h: false, duplicateName: true}),
+        {title: '5 min (started 14:02)', body: 'Timer finished'});
 });
 
 test('all text goes through the given gettext function', () => {

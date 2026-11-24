@@ -102,6 +102,58 @@ export class Formatter {
     }
 
     /**
+     * Clock time of a timestamp, in local time.
+     *
+     * @param {number} ms
+     * @param {boolean} use12h
+     */
+    clockAt(ms, use12h) {
+        const date = new Date(ms);
+        return this.clock(date.getHours(), date.getMinutes(), use12h);
+    }
+
+    /**
+     * Title and body of the notification for a finished timer.
+     *
+     * - "Pizza" / "12 min timer finished"
+     * - "25 min" / "Timer finished"
+     * - "Meeting" / "Alarm at 14:30"
+     * - "Alarm 14:30" / "Time is up"
+     * - finished a while ago (e.g. while logged out): body "Finished at 14:30"
+     * - same name as another timer: title gets "(started 14:02)"
+     *
+     * @param {import('./timer.js').Timer} timer - a finished timer
+     * @param {object} options
+     * @param {boolean} options.use12h
+     * @param {boolean} [options.late] - it finished a while before now
+     * @param {boolean} [options.duplicateName] - another timer has the same name
+     * @returns {{title: string, body: string}}
+     */
+    notification(timer, {use12h, late = false, duplicateName = false}) {
+        const _ = this.#gettext;
+        let title = this.timerName(timer, use12h);
+        if (duplicateName) {
+            title = _('%s (started %s)')
+                .replace('%s', title)
+                .replace('%s', this.clockAt(timer.startedAt, use12h));
+        }
+
+        let body;
+        if (late) {
+            body = _('Finished at %s').replace('%s', this.clockAt(timer.finishedAt, use12h));
+        } else if (timer.kind === 'alarm') {
+            body = timer.label
+                ? _('Alarm at %s').replace('%s', this.clock(timer.hours, timer.minutes, use12h))
+                : _('Time is up');
+        } else {
+            body = timer.label
+                ? _('%s timer finished').replace('%s', this.duration(timer.durationMs))
+                : _('Timer finished');
+        }
+        return {title, body};
+    }
+
+    /**
      * Message for a parse error code, or '' for empty input.
      *
      * @param {string} error - a ParseError value
