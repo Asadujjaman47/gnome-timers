@@ -83,10 +83,6 @@ export class TimerManager {
         return this.#timers.size;
     }
 
-    get hasRunning() {
-        return [...this.#timers.values()].some(t => t.isRunning);
-    }
-
     /** @param {string} id */
     get(id) {
         return this.#timers.get(id) ?? null;

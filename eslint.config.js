@@ -1,4 +1,5 @@
 import js from '@eslint/js';
+import stylistic from '@stylistic/eslint-plugin';
 
 // Globals provided by the GJS runtime and GNOME Shell.
 const gjsGlobals = {
@@ -51,7 +52,36 @@ export default [
             sourceType: 'module',
             globals: gjsGlobals,
         },
+        plugins: {'@stylistic': stylistic},
         rules: {
+            // Code style, following GNOME Shell's own lint rules.
+            '@stylistic/indent': ['error', 4, {
+                SwitchCase: 0,
+                // GObject.registerClass(class Foo extends Bar { … }) keeps the
+                // class body at the left margin, as in GNOME Shell.
+                ignoredNodes: [
+                    'CallExpression[callee.object.name=GObject][callee.property.name=registerClass] > ClassExpression',
+                ],
+            }],
+            '@stylistic/quotes': ['error', 'single', {avoidEscape: true}],
+            '@stylistic/semi': ['error', 'always'],
+            '@stylistic/comma-dangle': ['error', 'always-multiline'],
+            '@stylistic/arrow-parens': ['error', 'as-needed'],
+            '@stylistic/brace-style': ['error', '1tbs'],
+            '@stylistic/keyword-spacing': 'error',
+            '@stylistic/space-infix-ops': 'error',
+            '@stylistic/comma-spacing': 'error',
+            '@stylistic/key-spacing': 'error',
+            '@stylistic/space-before-blocks': 'error',
+            '@stylistic/space-before-function-paren': ['error', {
+                named: 'never', anonymous: 'always', asyncArrow: 'always',
+            }],
+            '@stylistic/no-trailing-spaces': 'error',
+            '@stylistic/no-multiple-empty-lines': ['error', {max: 1}],
+            '@stylistic/eol-last': 'error',
+            '@stylistic/quote-props': ['error', 'consistent-as-needed'],
+            '@stylistic/max-len': ['error', {code: 110, ignoreStrings: true, ignoreTemplateLiterals: true}],
+
             'no-unused-vars': ['error', {argsIgnorePattern: '^_', varsIgnorePattern: '^_'}],
             'prefer-const': 'error',
             'no-var': 'error',
@@ -74,5 +104,10 @@ export default [
     {
         files: ['src/core/**/*.js'],
         rules: restrict(NO_GI),
+    },
+    {
+        // Test tooling runs its steps one after another on purpose.
+        files: ['tools/**/*.js', 'tests/**/*.js'],
+        rules: {'no-await-in-loop': 'off'},
     },
 ];

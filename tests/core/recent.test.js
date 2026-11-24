@@ -1,6 +1,6 @@
 import {test, assert} from '../harness.js';
 import {
-    MAX_RECENT, addRecent, normalizeInput, recentFromJSON, removeRecent, visibleRecent,
+    MAX_RECENT, addRecent, normalizeInput, recentFromJSON, visibleRecent,
 } from '../../src/core/recent.js';
 
 const inputs = list => list.map(e => e.input);
@@ -39,11 +39,6 @@ test('addRecent ignores empty input and does not modify its argument', () => {
     assert.deepEqual(addRecent(list, '   ', 2), list);
     addRecent(list, '10m', 2);
     assert.deepEqual(list, [{input: '5m', lastUsedAt: 1}]);
-});
-
-test('removeRecent', () => {
-    const list = [{input: '5m', lastUsedAt: 1}, {input: '10m', lastUsedAt: 2}];
-    assert.deepEqual(inputs(removeRecent(list, ' 5M ')), ['10m']);
 });
 
 test('recentFromJSON validates entries', () => {

@@ -18,14 +18,6 @@ import {Ticker} from './src/services/ticker.js';
 import {TimeZoneWatcher} from './src/services/timeZone.js';
 import {ICON_FILE, TimersIndicator} from './src/ui/indicator.js';
 
-/*
- * Session modes: this extension also runs in "unlock-dialog" mode so that
- * timers keep counting and alarms ring while the screen is locked. While
- * locked, the indicator is display-only: its menu is made insensitive
- * (see TimersIndicator._syncSensitivity) and the keyboard shortcut is only
- * active in the normal session and the overview, so nothing can be changed
- * or opened from the lock screen.
- */
 export default class TimersExtension extends Extension {
     enable() {
         const storage = new Storage(this.getSettings());
@@ -76,18 +68,40 @@ export default class TimersExtension extends Extension {
         this._timeZone = new TimeZoneWatcher();
         this._timeZone.connect('changed', () => this._manager.retargetAlarms());
 
+        // Keyboard shortcuts exist only while the screen is unlocked.
         this._keybindings = new Keybindings(storage.settings);
-        this._keybindings.bind(Keys.OPEN_MENU_HOTKEY, () => this._indicator.openForInput());
-        for (let slot = 1; slot <= HOTKEY_SLOTS; slot++) {
-            this._keybindings.bind(presetHotkeyKey(slot),
-                () => this._library.startPresetInSlot(slot));
-        }
+        this._sessionModeId = Main.sessionMode.connect('updated', () => this._syncShortcuts());
+        this._syncShortcuts();
 
         // Report timers that finished while the extension was not running.
         this._manager.update();
     }
 
+    _syncShortcuts() {
+        if (Main.sessionMode.isLocked) {
+            this._keybindings.unbindAll();
+            return;
+        }
+        this._keybindings.bind(Keys.OPEN_MENU_HOTKEY, () => this._indicator.openForInput());
+        for (let slot = 1; slot <= HOTKEY_SLOTS; slot++) {
+            this._keybindings.bind(presetHotkeyKey(slot),
+                () => this._library.startPresetInSlot(slot));
+        }
+    }
+
+    /*
+     * The extension also runs in the "unlock-dialog" session mode because a
+     * timer must keep counting, and ring when it finishes, while the screen is
+     * locked; if it were disabled on lock, running timers would stop and their
+     * alarms would never go off. While locked, nothing can be changed: the
+     * panel menu is insensitive (TimersIndicator._syncSensitivity) and the
+     * keyboard shortcuts are removed (_syncShortcuts).
+     */
     disable() {
+        if (this._sessionModeId) {
+            Main.sessionMode.disconnect(this._sessionModeId);
+            this._sessionModeId = 0;
+        }
         this._keybindings?.destroy();
         this._timeZone?.destroy();
         this._indicator?.destroy();

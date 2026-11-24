@@ -17,7 +17,7 @@ const MAX_INPUT_LENGTH = 80;
  * Signal: `started` () - a timer was started from the input.
  */
 export const InputItem = GObject.registerClass({
-    Signals: {'started': {}},
+    Signals: {started: {}},
 }, class TimersInputItem extends PopupMenu.PopupBaseMenuItem {
     /**
      * @param {object} deps

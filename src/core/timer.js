@@ -127,16 +127,6 @@ export class Timer {
 
     /**
      * @param {number} now
-     * @returns {number} 0 at start … 1 when finished
-     */
-    progressAt(now) {
-        if (this.durationMs <= 0)
-            return 1;
-        return Math.min(1, Math.max(0, 1 - this.remainingAt(now) / this.durationMs));
-    }
-
-    /**
-     * @param {number} now
      * @returns {boolean} whether the state changed
      */
     pause(now) {

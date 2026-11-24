@@ -52,15 +52,6 @@ export function addRecent(list, input, now, max = MAX_RECENT) {
 }
 
 /**
- * @param {RecentEntry[]} list
- * @param {string} input
- * @returns {RecentEntry[]}
- */
-export function removeRecent(list, input) {
-    return list.filter(entry => !sameInput(entry.input, input));
-}
-
-/**
  * The entries the menu shows: those that are not also presets (presets have
  * their own section), up to `size`.
  *

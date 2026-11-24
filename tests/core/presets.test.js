@@ -17,7 +17,8 @@ test('createPreset fills defaults and normalises input', () => {
 test('validatePreset reports every problem', () => {
     assert.deepEqual(validatePreset(tea), []);
     assert.deepEqual(validatePreset({id: '', input: 'pizza', sound: 'trumpet', hotkeySlot: 10}), [
-        PresetError.INVALID_ID, PresetError.INVALID_INPUT, PresetError.INVALID_SOUND, PresetError.INVALID_SLOT,
+        PresetError.INVALID_ID, PresetError.INVALID_INPUT,
+        PresetError.INVALID_SOUND, PresetError.INVALID_SLOT,
     ]);
     assert.deepEqual(validatePreset({...tea, hotkeySlot: 0}), [PresetError.INVALID_SLOT]);
     assert.deepEqual(validatePreset({...tea, hotkeySlot: 1.5}), [PresetError.INVALID_SLOT]);

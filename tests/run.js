@@ -33,7 +33,6 @@ const files = findTestFiles(testsDir)
 
 for (const file of files) {
     setCurrentFile(testsDir.get_relative_path(file));
-    // eslint-disable-next-line no-await-in-loop
     await import(file.get_uri());
 }
 
@@ -48,7 +47,6 @@ for (const {file, name, fn} of registeredTests) {
         lastFile = file;
     }
     try {
-        // eslint-disable-next-line no-await-in-loop
         await fn();
         passed++;
         print(`  ✓ ${name}`);

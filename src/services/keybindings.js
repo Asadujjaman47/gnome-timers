@@ -41,9 +41,13 @@ export class Keybindings {
         this.#bindings.delete(key);
     }
 
-    destroy() {
+    unbindAll() {
         for (const key of [...this.#bindings.keys()])
             this.unbind(key);
+    }
+
+    destroy() {
+        this.unbindAll();
     }
 
     #add(key, handler) {

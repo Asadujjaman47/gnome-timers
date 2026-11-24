@@ -79,13 +79,6 @@ test('a paused timer never finishes', () => {
     assert.equal(t.checkFinished(T0 + 10 * MINUTE), false);
 });
 
-test('progress goes from 0 to 1', () => {
-    const t = create('4m');
-    assert.equal(t.progressAt(T0), 0);
-    assert.equal(t.progressAt(T0 + MINUTE), 0.25);
-    assert.equal(t.progressAt(T0 + 10 * MINUTE), 1);
-});
-
 test('JSON round trip in every state', () => {
     const running = create('5m tea', T0, 'bell');
     const paused = create('10m');
