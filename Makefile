@@ -54,7 +54,8 @@ $(ZIP): $(PACK_SOURCES)
 install: pack
 	gnome-extensions install --force $(ZIP)
 	@echo "Installed $(UUID)."
-	@echo "On Wayland GNOME Shell only loads new extensions after you log out and back in; then run: make enable"
+	@echo "First install: run 'make enable' and it loads immediately."
+	@echo "Updating an already-loaded version: GNOME Shell caches extension code, so log out and back in (or use 'make run')."
 
 enable:
 	gnome-extensions enable $(UUID)

@@ -26,11 +26,14 @@ cd gnome-timers
 make install
 ```
 
-On Wayland, log out and back in, then enable it:
+Then enable it (a first install loads immediately):
 
 ```sh
 make enable
 ```
+
+After updating to a newer version, log out and back in: GNOME Shell caches
+extension code, so a re-installed extension only reloads with a new session.
 
 ## Development
 
@@ -45,8 +48,10 @@ make run        # install and start a nested GNOME Shell session
 make pot        # regenerate the translation template
 ```
 
-`make run` uses `gnome-shell --devkit` on GNOME 49+ (install the
-`mutter-devkit` package) and `--nested` on older versions.
+`make run` starts a separate GNOME Shell in a window, which picks up code
+changes without logging out. It uses `gnome-shell --devkit` on GNOME 49+
+(install `mutter-devkit`, e.g. `sudo dnf install mutter-devkit`) and
+`--nested` on older versions.
 
 Logs from the running extension:
 
