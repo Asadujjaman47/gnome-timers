@@ -62,32 +62,50 @@ class TimersSoundRow extends Adw.ComboRow {
 
         this.connect('notify::selected', () => this._onSelected());
         this.connect('destroy', () => this._player.destroy());
-        this._rebuild();
+        this._sync();
     }
 
     /** @param {string|null} value */
     setValue(value) {
+        if (value === this._value)
+            return;
         this._value = value;
-        this._rebuild();
+        this._sync();
     }
 
-    _rebuild() {
+    /**
+     * Shows `this._value`. The list model is only replaced when its entries
+     * change (a custom file added or removed): replacing it on every pick,
+     * while GTK is still handling the selection, made GTK report the
+     * selection again and again in an endless loop.
+     */
+    _sync() {
         const names = builtinNames();
-        this._choices = [];
+        const choices = [];
         if (this._allowDefault)
-            this._choices.push({label: _('Default'), value: null});
+            choices.push({label: _('Default'), value: null});
         for (const id of BUILTIN_SOUNDS)
-            this._choices.push({label: names[id], value: id});
+            choices.push({label: names[id], value: id});
         if (this._value?.startsWith('file://')) {
             const name = GLib.path_get_basename(GLib.filename_from_uri(this._value)[0]);
-            this._choices.push({label: name, value: this._value});
+            choices.push({label: name, value: this._value});
         }
-        this._choices.push({label: _('Other file…'), value: OTHER_FILE});
+        choices.push({label: _('Other file…'), value: OTHER_FILE});
+        this._choices = choices;
 
+        const labels = choices.map(c => c.label);
+        const index = Math.max(0, choices.findIndex(c => c.value === this._value));
         this._updating = true;
-        this.model = Gtk.StringList.new(this._choices.map(c => c.label));
-        this.selected = Math.max(0, this._choices.findIndex(c => c.value === this._value));
-        this._updating = false;
+        try {
+            if (labels.join('\n') !== this._labels?.join('\n')) {
+                this._labels = labels;
+                this.model = Gtk.StringList.new(labels);
+            }
+            if (this.selected !== index)
+                this.selected = index;
+        } finally {
+            this._updating = false;
+        }
 
         const missing = this._value?.startsWith('file://') && !soundFile(this._value);
         this._warning.visible = Boolean(missing);
@@ -104,13 +122,17 @@ class TimersSoundRow extends Adw.ComboRow {
             this._chooseFile();
             return;
         }
+        // Already the current sound: nothing to save. This also guarantees
+        // a repeated selection notification can never start a loop.
+        if (choice.value === this._value)
+            return;
         this._set(choice.value);
     }
 
     _set(value) {
         this._value = value;
         this._onChanged(value);
-        this._rebuild();
+        this._sync();
     }
 
     _chooseFile() {
@@ -128,7 +150,7 @@ class TimersSoundRow extends Adw.ComboRow {
                 this._set(file.get_uri());
             } catch {
                 // Cancelled: show the previous choice again.
-                this._rebuild();
+                this._sync();
             }
         });
     }
