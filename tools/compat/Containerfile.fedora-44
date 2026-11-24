@@ -1,0 +1,17 @@
+# GNOME Shell 50 (Fedora 44) for tools/compat/run.sh.
+FROM registry.fedoraproject.org/fedora:44
+
+RUN dnf install -y --setopt=install_weak_deps=False \
+        gnome-shell gjs \
+        dbus-daemon glib2 \
+        gtk4 libadwaita \
+        gstreamer1-plugins-base \
+        mesa-dri-drivers mesa-libEGL \
+        sound-theme-freedesktop \
+        abattis-cantarell-vf-fonts librsvg2 \
+        zip unzip \
+    && dnf clean all
+
+# systemd-logind cannot run in a container; without its D-Bus activation file
+# GNOME Shell simply finds no login manager instead of failing to start it.
+RUN rm -f /usr/share/dbus-1/system-services/org.freedesktop.login1.service
