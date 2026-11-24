@@ -25,6 +25,10 @@ jobs:
       - run: npm ci
       - run: make check
 
+      # Alarm times depend on the local time zone; Berlin has DST changes.
+      - name: Tests in a DST time zone
+        run: TZ=Europe/Berlin make test
+
   pack:
     name: Build extension zip
     needs: check

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Timers\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-24 19:55+0600\n"
+"POT-Creation-Date: 2026-11-24 20:10+0600\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,6 +16,55 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
+
+#: src/core/format.js:52
+#, javascript-format
+msgid "%d h"
+msgstr ""
+
+#: src/core/format.js:54
+#, javascript-format
+msgid "%d min"
+msgstr ""
+
+#: src/core/format.js:56
+#, javascript-format
+msgid "%d s"
+msgstr ""
+
+#: src/core/format.js:70
+msgid "AM"
+msgstr ""
+
+#: src/core/format.js:70
+msgid "PM"
+msgstr ""
+
+#: src/core/format.js:115
+msgid "The time must be longer than zero"
+msgstr ""
+
+#: src/core/format.js:117
+msgid "The longest timer is 99 hours"
+msgstr ""
+
+#: src/core/format.js:119
+msgid "Not a valid clock time"
+msgstr ""
+
+#: src/core/format.js:121
+msgid "Type a time like 5m, 1:30 or @14:30"
+msgstr ""
+
+#: src/core/format.js:129
+#, javascript-format
+msgid "Alarm tomorrow %s"
+msgstr ""
+
+#: src/core/format.js:130
+#, javascript-format
+msgid "Alarm %s"
+msgstr ""
 
 #: src/ui/indicator.js:21
 msgid "Timers"
