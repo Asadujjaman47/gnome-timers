@@ -8,6 +8,9 @@ import {gettext as _} from 'resource:///org/gnome/Shell/Extensions/js/extensions
 /**
  * Shows and records a keyboard shortcut. Click the row, then press the keys;
  * Escape cancels, Backspace clears. A shortcut needs at least one modifier.
+ *
+ * Where the shortcut is stored is up to the caller: `getAccelerator`,
+ * `setAccelerator` and, for values that can change elsewhere, `watch`.
  */
 export const HotkeyRow = GObject.registerClass(
 class TimersHotkeyRow extends Adw.ActionRow {
@@ -15,13 +18,15 @@ class TimersHotkeyRow extends Adw.ActionRow {
      * @param {object} args
      * @param {string} args.title
      * @param {string} [args.subtitle]
-     * @param {import('../../services/storage.js').Storage} args.storage
-     * @param {string} args.key - settings key holding the shortcut
+     * @param {() => string} args.getAccelerator - '' when unset
+     * @param {(accelerator: string) => void} args.setAccelerator - '' clears
+     * @param {(onChange: () => void) => (() => void)} [args.watch] - subscribe to
+     *   outside changes; returns an unsubscribe function
      */
-    _init({title, subtitle = '', storage, key}) {
+    _init({title, subtitle = '', getAccelerator, setAccelerator, watch}) {
         super._init({title, subtitle, activatable: true});
-        this._storage = storage;
-        this._key = key;
+        this._getAccelerator = getAccelerator;
+        this._setAccelerator = setAccelerator;
         this._capturing = false;
 
         this._label = new Gtk.ShortcutLabel({valign: Gtk.Align.CENTER});
@@ -33,7 +38,7 @@ class TimersHotkeyRow extends Adw.ActionRow {
             tooltip_text: _('Remove shortcut'),
             css_classes: ['flat'],
         });
-        this._clearButton.connect('clicked', () => storage.setHotkey(key, ''));
+        this._clearButton.connect('clicked', () => this._set(''));
         this.add_suffix(this._clearButton);
 
         const keys = new Gtk.EventControllerKey();
@@ -47,13 +52,15 @@ class TimersHotkeyRow extends Adw.ActionRow {
 
         this.connect('activated', () => this._startCapture());
 
-        const changedId = storage.connectChanged(key, () => this._sync());
-        this.connect('destroy', () => storage.disconnect(changedId));
-        this._sync();
+        if (watch) {
+            const unwatch = watch(() => this.sync());
+            this.connect('destroy', () => unwatch());
+        }
+        this.sync();
     }
 
-    _sync() {
-        const accelerator = this._capturing ? '' : this._storage.getHotkey(this._key);
+    sync() {
+        const accelerator = this._capturing ? '' : this._getAccelerator();
         this._label.accelerator = accelerator;
         this._label.disabled_text = this._capturing
             ? _('Press a shortcut… (Esc cancels, Backspace clears)')
@@ -61,16 +68,22 @@ class TimersHotkeyRow extends Adw.ActionRow {
         this._clearButton.visible = !this._capturing && accelerator !== '';
     }
 
+    _set(accelerator) {
+        this._capturing = false;
+        this._setAccelerator(accelerator);
+        this.sync();
+    }
+
     _startCapture() {
         this._capturing = true;
-        this._sync();
+        this.sync();
     }
 
     _stopCapture() {
         if (!this._capturing)
             return;
         this._capturing = false;
-        this._sync();
+        this.sync();
     }
 
     _onKeyPressed(keyval, keycode, state) {
@@ -80,18 +93,12 @@ class TimersHotkeyRow extends Adw.ActionRow {
         const mods = state & Gtk.accelerator_get_default_mod_mask();
         const key = Gdk.keyval_to_lower(keyval);
 
-        if (!mods && key === Gdk.KEY_Escape) {
+        if (!mods && key === Gdk.KEY_Escape)
             this._stopCapture();
-        } else if (!mods && key === Gdk.KEY_BackSpace) {
-            this._capturing = false;
-            this._storage.setHotkey(this._key, '');
-            this._sync();
-        } else if (mods && Gtk.accelerator_valid(key, mods)) {
-            this._capturing = false;
-            this._storage.setHotkey(this._key,
-                Gtk.accelerator_name_with_keycode(null, key, keycode, mods));
-            this._sync();
-        }
+        else if (!mods && key === Gdk.KEY_BackSpace)
+            this._set('');
+        else if (mods && Gtk.accelerator_valid(key, mods))
+            this._set(Gtk.accelerator_name_with_keycode(null, key, keycode, mods));
         // Anything else (e.g. a lone modifier) keeps waiting for a full shortcut.
         return Gdk.EVENT_STOP;
     }

@@ -69,3 +69,17 @@
 .timers-panel-alarm-icon {
     padding-right: 0;
 }
+
+/* Menu: presets and recent */
+.timers-section-heading {
+    font-size: 0.85em;
+    font-weight: bold;
+}
+
+.timers-library-row {
+    spacing: 6px;
+}
+
+.timers-shortcut-hint {
+    font-size: 0.85em;
+}

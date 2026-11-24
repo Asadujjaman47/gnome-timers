@@ -1,5 +1,7 @@
 import {test, assert} from '../harness.js';
-import {MAX_RECENT, addRecent, normalizeInput, recentFromJSON, removeRecent} from '../../src/core/recent.js';
+import {
+    MAX_RECENT, addRecent, normalizeInput, recentFromJSON, removeRecent, visibleRecent,
+} from '../../src/core/recent.js';
 
 const inputs = list => list.map(e => e.input);
 
@@ -50,4 +52,17 @@ test('recentFromJSON validates entries', () => {
     assert.equal(recentFromJSON({input: 5, lastUsedAt: 1}), null);
     assert.equal(recentFromJSON({input: '5m'}), null);
     assert.equal(recentFromJSON({input: 'pizza', lastUsedAt: 1}), null);
+});
+
+test('visibleRecent hides entries that are presets and applies the size', () => {
+    const recent = [
+        {input: '5m', lastUsedAt: 5},
+        {input: '4m tea', lastUsedAt: 4},
+        {input: '10m', lastUsedAt: 3},
+        {input: '@7', lastUsedAt: 2},
+    ];
+    const presets = [{input: '4M  Tea'}];
+    assert.deepEqual(inputs(visibleRecent(recent, presets, 5)), ['5m', '10m', '@7']);
+    assert.deepEqual(inputs(visibleRecent(recent, presets, 2)), ['5m', '10m']);
+    assert.deepEqual(visibleRecent(recent, presets, 0), []);
 });

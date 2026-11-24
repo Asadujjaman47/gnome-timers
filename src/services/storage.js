@@ -2,6 +2,7 @@ import {
     DATA_VERSION, decodePresets, decodeRecent, decodeTimers, encodePresets, encodeRecent,
     encodeTimers, migrate, parseList,
 } from '../core/serialization.js';
+import {HOTKEY_SLOTS} from '../core/presets.js';
 import {DEFAULT_SOUND, isValidSound} from '../core/sound.js';
 
 /** GSettings keys; see schemas/org.gnome.shell.extensions.timers.gschema.xml. */
@@ -19,6 +20,12 @@ export const Keys = Object.freeze({
 
 /** @param {number} slot - 1…9 */
 export const presetHotkeyKey = slot => `preset-hotkey-${slot}`;
+
+/** Every settings key that holds a keyboard shortcut. */
+export const HOTKEY_KEYS = Object.freeze([
+    Keys.OPEN_MENU_HOTKEY,
+    ...Array.from({length: HOTKEY_SLOTS}, (_, i) => presetHotkeyKey(i + 1)),
+]);
 
 /**
  * Typed access to the extension's settings. Used by both the extension and
@@ -123,6 +130,13 @@ export class Storage {
      * @param {string} accelerator - '' clears it
      */
     setHotkey(key, accelerator) {
+        // A shortcut can only do one thing: take it away from other actions.
+        if (accelerator) {
+            for (const other of HOTKEY_KEYS) {
+                if (other !== key && this.getHotkey(other) === accelerator)
+                    this.#settings.set_strv(other, []);
+            }
+        }
         this.#settings.set_strv(key, accelerator ? [accelerator] : []);
     }
 

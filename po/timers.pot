@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Timers\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-24 21:49+0600\n"
+"POT-Creation-Date: 2026-11-24 22:07+0600\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -45,61 +45,61 @@ msgstr ""
 msgid "tomorrow %s"
 msgstr ""
 
-#: src/core/format.js:118 src/core/format.js:214
+#: src/core/format.js:118 src/core/format.js:230
 #, javascript-format
 msgid "Alarm %s"
 msgstr ""
 
-#: src/core/format.js:168
+#: src/core/format.js:184
 #, javascript-format
 msgid "%s (started %s)"
 msgstr ""
 
-#: src/core/format.js:175
+#: src/core/format.js:191
 #, javascript-format
 msgid "Finished at %s"
 msgstr ""
 
-#: src/core/format.js:178
+#: src/core/format.js:194
 #, javascript-format
 msgid "Alarm at %s"
 msgstr ""
 
-#: src/core/format.js:179
+#: src/core/format.js:195
 msgid "Time is up"
 msgstr ""
 
-#: src/core/format.js:182
+#: src/core/format.js:198
 #, javascript-format
 msgid "%s timer finished"
 msgstr ""
 
-#: src/core/format.js:183
+#: src/core/format.js:199
 msgid "Timer finished"
 msgstr ""
 
-#: src/core/format.js:199
+#: src/core/format.js:215
 msgid "The time must be longer than zero"
 msgstr ""
 
-#: src/core/format.js:201
+#: src/core/format.js:217
 msgid "The longest timer is 99 hours"
 msgstr ""
 
-#: src/core/format.js:203
+#: src/core/format.js:219
 msgid "Not a valid clock time"
 msgstr ""
 
-#: src/core/format.js:205
+#: src/core/format.js:221
 msgid "Type a time like 5m, 1:30 or @14:30"
 msgstr ""
 
-#: src/core/format.js:213
+#: src/core/format.js:229
 #, javascript-format
 msgid "Alarm tomorrow %s"
 msgstr ""
 
-#: src/ui/inputItem.js:35
+#: src/ui/inputItem.js:38
 msgid "5m, 1:30, 12m pizza, @14:30"
 msgstr ""
 
@@ -119,23 +119,40 @@ msgstr ""
 msgid "Stop"
 msgstr ""
 
-#: src/ui/indicator.js:36 src/services/notifier.js:83
+#: src/ui/indicator.js:39 src/services/notifier.js:83
 msgid "Timers"
 msgstr ""
 
-#: src/ui/indicator.js:112
+#: src/ui/indicator.js:133
 msgid "Settings"
 msgstr ""
 
-#: src/prefs/widgets/soundRow.js:15
+#: src/ui/librarySections.js:94 src/prefs/presetsPage.js:36
+#: src/prefs/presetsPage.js:56
+msgid "Presets"
+msgstr ""
+
+#: src/ui/librarySections.js:154
+msgid "Recent"
+msgstr ""
+
+#: src/ui/librarySections.js:169
+msgid "Save as preset"
+msgstr ""
+
+#: src/ui/librarySections.js:177
+msgid "Clear recent"
+msgstr ""
+
+#: src/prefs/widgets/soundRow.js:15 src/prefs/presetsPage.js:19
 msgid "Bell"
 msgstr ""
 
-#: src/prefs/widgets/soundRow.js:16
+#: src/prefs/widgets/soundRow.js:16 src/prefs/presetsPage.js:20
 msgid "Complete"
 msgstr ""
 
-#: src/prefs/widgets/soundRow.js:17
+#: src/prefs/widgets/soundRow.js:17 src/prefs/presetsPage.js:21
 msgid "Message"
 msgstr ""
 
@@ -163,15 +180,15 @@ msgstr ""
 msgid "Choose a sound file"
 msgstr ""
 
-#: src/prefs/widgets/hotkeyRow.js:33
+#: src/prefs/widgets/hotkeyRow.js:38
 msgid "Remove shortcut"
 msgstr ""
 
-#: src/prefs/widgets/hotkeyRow.js:59
+#: src/prefs/widgets/hotkeyRow.js:66
 msgid "Press a shortcut… (Esc cancels, Backspace clears)"
 msgstr ""
 
-#: src/prefs/widgets/hotkeyRow.js:60
+#: src/prefs/widgets/hotkeyRow.js:67
 msgid "Disabled"
 msgstr ""
 
@@ -179,58 +196,144 @@ msgstr ""
 msgid "General"
 msgstr ""
 
-#: src/prefs/generalPage.js:35
+#: src/prefs/generalPage.js:36 src/prefs/presetDialog.js:82
 msgid "Sound"
 msgstr ""
 
-#: src/prefs/generalPage.js:38
+#: src/prefs/generalPage.js:39
 msgid "Alarm sound"
 msgstr ""
 
-#: src/prefs/generalPage.js:39
+#: src/prefs/generalPage.js:40
 msgid "Used by timers without a sound of their own"
 msgstr ""
 
-#: src/prefs/generalPage.js:53
+#: src/prefs/generalPage.js:54
 msgid "Repeat until stopped"
 msgstr ""
 
-#: src/prefs/generalPage.js:54
+#: src/prefs/generalPage.js:55
 msgid "Keep ringing and show a Stop button, instead of playing once"
 msgstr ""
 
-#: src/prefs/generalPage.js:60
+#: src/prefs/generalPage.js:61
 msgid "Silence alarms during Do Not Disturb"
 msgstr ""
 
-#: src/prefs/generalPage.js:61
+#: src/prefs/generalPage.js:62
 msgid "Notifications always follow Do Not Disturb; this also mutes the sound"
 msgstr ""
 
-#: src/prefs/generalPage.js:70
-msgid "Keyboard shortcut"
-msgstr ""
-
-#: src/prefs/generalPage.js:72
-msgid "Open the timers menu"
+#: src/prefs/generalPage.js:71
+msgid "Menu"
 msgstr ""
 
 #: src/prefs/generalPage.js:73
-msgid "Opens the menu ready to type a time"
+msgid "Recent timers to show"
 msgstr ""
 
-#: src/prefs/generalPage.js:81
-msgid "About"
+#: src/prefs/generalPage.js:74
+msgid "0 hides the Recent list"
+msgstr ""
+
+#: src/prefs/generalPage.js:81 src/prefs/presetDialog.js:92
+msgid "Keyboard shortcut"
 msgstr ""
 
 #: src/prefs/generalPage.js:83
+msgid "Open the timers menu"
+msgstr ""
+
+#: src/prefs/generalPage.js:84
+msgid "Opens the menu ready to type a time"
+msgstr ""
+
+#: src/prefs/generalPage.js:96
+msgid "About"
+msgstr ""
+
+#: src/prefs/generalPage.js:98
 msgid "Version"
 msgstr ""
 
-#: src/prefs/generalPage.js:88
+#: src/prefs/generalPage.js:103
 msgid "Project page"
 msgstr ""
 
-#: src/prefs/generalPage.js:93
+#: src/prefs/generalPage.js:108
 msgid "Open"
+msgstr ""
+
+#: src/prefs/presetDialog.js:37
+msgid "New Preset"
+msgstr ""
+
+#: src/prefs/presetDialog.js:37
+msgid "Edit Preset"
+msgstr ""
+
+#: src/prefs/presetDialog.js:49
+msgid "Cancel"
+msgstr ""
+
+#: src/prefs/presetDialog.js:53
+msgid "Save"
+msgstr ""
+
+#: src/prefs/presetDialog.js:63
+msgid "Time — e.g. 4m, 1:30, @7:30"
+msgstr ""
+
+#: src/prefs/presetDialog.js:67
+msgid "Name (optional)"
+msgstr ""
+
+#: src/prefs/presetDialog.js:93
+msgid "Starts this preset from anywhere"
+msgstr ""
+
+#: src/prefs/presetDialog.js:93
+msgid "All 9 shortcuts are in use"
+msgstr ""
+
+#: src/prefs/presetDialog.js:125
+msgid "Enter a time"
+msgstr ""
+
+#: src/prefs/presetDialog.js:127
+msgid "Put the name in the Name field"
+msgstr ""
+
+#: src/prefs/presetsPage.js:49
+msgid "Add Preset"
+msgstr ""
+
+#: src/prefs/presetsPage.js:57
+msgid ""
+"Start them with one click from the menu, or with their shortcut. You can "
+"also save a recent timer with ☆ in the menu."
+msgstr ""
+
+#: src/prefs/presetsPage.js:82
+msgid "No presets yet"
+msgstr ""
+
+#: src/prefs/presetsPage.js:83
+msgid "Use “Add Preset”, or ☆ on a recent timer in the menu"
+msgstr ""
+
+#: src/prefs/presetsPage.js:122
+msgid "Move up"
+msgstr ""
+
+#: src/prefs/presetsPage.js:123
+msgid "Move down"
+msgstr ""
+
+#: src/prefs/presetsPage.js:124
+msgid "Delete"
+msgstr ""
+
+#: src/prefs/presetsPage.js:134
+msgid "Default sound"
 msgstr ""

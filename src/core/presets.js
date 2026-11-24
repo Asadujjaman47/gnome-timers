@@ -112,6 +112,35 @@ export function movePreset(list, id, toIndex) {
 }
 
 /**
+ * A new unique preset id.
+ *
+ * @param {number} now
+ */
+export function newPresetId(now) {
+    return `p${now.toString(36)}${Math.floor(Math.random() * 36 ** 4).toString(36)}`;
+}
+
+/**
+ * The hotkey slot a preset can use: its own, else the lowest free one, else
+ * null when all HOTKEY_SLOTS are taken by other presets.
+ *
+ * @param {Preset[]} list
+ * @param {string|null} id - the preset, or null for a new one
+ * @returns {number|null}
+ */
+export function slotFor(list, id) {
+    const own = list.find(p => p.id === id)?.hotkeySlot;
+    if (own)
+        return own;
+    const used = new Set(list.map(p => p.hotkeySlot));
+    for (let slot = 1; slot <= HOTKEY_SLOTS; slot++) {
+        if (!used.has(slot))
+            return slot;
+    }
+    return null;
+}
+
+/**
  * @param {Preset[]} list
  * @param {number} slot
  * @returns {Preset|null}

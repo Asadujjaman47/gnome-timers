@@ -3,10 +3,10 @@
 A GNOME Shell extension for running multiple countdown timers and clock-time
 alarms from the top panel.
 
-> **Status:** in development. Multiple timers, clock-time alarms, notifications,
-> sounds and the keyboard shortcut work; presets and the Recent list are next.
+> **Status:** feature-complete for a first release; being polished and tested
+> on GNOME 46–51 before publishing to extensions.gnome.org.
 
-## Planned features
+## Features
 
 - Multiple timers at once, each with an optional label: `12m pizza`
 - Flexible input: `5`, `1:12`, `53000` (→ 5:30:00), `5h 30m`, `1h30m`

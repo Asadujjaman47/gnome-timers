@@ -1,6 +1,6 @@
 import {test, assert} from '../harness.js';
 import {HOUR, MINUTE, SECOND, localTime} from '../helpers.js';
-import {Formatter} from '../../src/core/format.js';
+import {Formatter, formatAccelerator} from '../../src/core/format.js';
 import {ParseError, parseInput} from '../../src/core/parser.js';
 import {Timer} from '../../src/core/timer.js';
 
@@ -121,6 +121,20 @@ test('rowName: alarms always show when they ring', () => {
     assert.equal(f.rowName(runningTimer('@7 gym', now), now, true), 'Gym · tomorrow 7:00 AM');
     assert.equal(f.rowName(runningTimer('12m pizza', now), now, false), 'Pizza');
     assert.equal(f.rowName(runningTimer('25m', now), now, false), '25 min');
+});
+
+test('describe: saved inputs without "tomorrow"', () => {
+    assert.equal(f.describe(spec('12m pizza'), false), '12 min · Pizza');
+    assert.equal(f.describe(spec('@1010pm'), false), 'Alarm 22:10');
+    assert.equal(f.describe(spec('@1010pm call'), true), 'Alarm 10:10 PM · Call');
+});
+
+test('formatAccelerator', () => {
+    assert.equal(formatAccelerator('<Control><Super>t'), 'Ctrl+Super+T');
+    assert.equal(formatAccelerator('<Primary><Alt>1'), 'Ctrl+Alt+1');
+    assert.equal(formatAccelerator('<Super>F5'), 'Super+F5');
+    assert.equal(formatAccelerator('<Shift><Super>space'), 'Shift+Super+Space');
+    assert.equal(formatAccelerator(''), '');
 });
 
 test('all text goes through the given gettext function', () => {

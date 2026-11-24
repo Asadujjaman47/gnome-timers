@@ -11,6 +11,7 @@ import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
 
 import {SummaryState} from '../core/timerManager.js';
 import {InputItem} from './inputItem.js';
+import {PresetsSection, RecentSection} from './librarySections.js';
 import {TimersSection} from './timersSection.js';
 import {setDimmed, setStyleClass} from './util.js';
 
@@ -31,25 +32,35 @@ class TimersIndicator extends PanelMenu.Button {
      * @param {import('../services/ticker.js').Ticker} deps.ticker
      * @param {import('../core/format.js').Formatter} deps.formatter
      * @param {import('../services/clockFormat.js').ClockFormat} deps.clockFormat
+     * @param {import('../services/library.js').Library} deps.library
+     * @param {import('../services/storage.js').Storage} deps.storage
      */
-    _init({extension, manager, ticker, formatter, clockFormat}) {
+    _init({extension, manager, ticker, formatter, clockFormat, library, storage}) {
         super._init(0.5, _('Timers'));
         this._manager = manager;
         this._ticker = ticker;
         this._formatter = formatter;
         this._clockFormat = clockFormat;
+        this._library = library;
+        this._storage = storage;
         this._focusId = 0;
         this._timerIcon = Gio.icon_new_for_string(`${extension.path}/${ICON_FILE}`);
+        this._alarmGIcon = new Gio.ThemedIcon({name: 'alarm-symbolic'});
 
         this._buildPanel();
         this._buildMenu(extension);
 
         this._managerId = manager.connect('changed', () => this._sync());
         this._tickId = ticker.connect('tick', () => this._sync());
-        this._clockFormatId = clockFormat.connect('changed', () => this._sync());
+        this._clockFormatId = clockFormat.connect('changed', () => {
+            this._rebuildLibrary();
+            this._sync();
+        });
+        this._libraryId = library.connect('changed', () => this._rebuildLibrary());
         this._sessionModeId = Main.sessionMode.connect('updated',
             () => this._syncSensitivity());
 
+        this._rebuildLibrary();
         this._sync();
         this._syncSensitivity();
     }
@@ -96,7 +107,10 @@ class TimersIndicator extends PanelMenu.Button {
             manager: this._manager,
             formatter: this._formatter,
             clockFormat: this._clockFormat,
+            library: this._library,
+            storage: this._storage,
             timerIcon: this._timerIcon,
+            icons: {timer: this._timerIcon, alarm: this._alarmGIcon},
         };
 
         this._input = new InputItem(deps);
@@ -108,6 +122,13 @@ class TimersIndicator extends PanelMenu.Button {
         this._timers = new TimersSection(deps);
         this.menu.addMenuItem(this._timers.section);
 
+        this._librarySeparator = new PopupMenu.PopupSeparatorMenuItem();
+        this.menu.addMenuItem(this._librarySeparator);
+        this._presets = new PresetsSection(deps);
+        this.menu.addMenuItem(this._presets.section);
+        this._recent = new RecentSection(deps);
+        this.menu.addMenuItem(this._recent.section);
+
         this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
         const settingsItem = new PopupMenu.PopupImageMenuItem(_('Settings'), 'preferences-system-symbolic');
         settingsItem.connect('activate', () => extension.openPreferences());
@@ -117,6 +138,8 @@ class TimersIndicator extends PanelMenu.Button {
             if (!open)
                 return;
             this._input.refresh();
+            // Shortcut hints may have changed in the preferences.
+            this._rebuildLibrary();
             this._focusInputLater();
         });
     }
@@ -133,6 +156,13 @@ class TimersIndicator extends PanelMenu.Button {
             this._input.focusEntry();
             return GLib.SOURCE_REMOVE;
         });
+    }
+
+    _rebuildLibrary() {
+        const use12h = this._clockFormat.use12h;
+        this._presets.rebuild(use12h);
+        this._recent.rebuild(use12h);
+        this._librarySeparator.visible = !this._presets.isEmpty || !this._recent.isEmpty;
     }
 
     _sync() {
@@ -176,6 +206,7 @@ class TimersIndicator extends PanelMenu.Button {
         this._manager.disconnect(this._managerId);
         this._ticker.disconnect(this._tickId);
         this._clockFormat.disconnect(this._clockFormatId);
+        this._library.disconnect(this._libraryId);
         Main.sessionMode.disconnect(this._sessionModeId);
         super._onDestroy();
     }

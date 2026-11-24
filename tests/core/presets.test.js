@@ -1,7 +1,7 @@
 import {test, assert} from '../harness.js';
 import {
-    PresetError, addPreset, createPreset, movePreset, presetForSlot, presetFromJSON,
-    removePreset, updatePreset, validatePreset,
+    PresetError, addPreset, createPreset, movePreset, newPresetId, presetForSlot, presetFromJSON,
+    removePreset, slotFor, updatePreset, validatePreset,
 } from '../../src/core/presets.js';
 import {BUILTIN_SOUNDS, DEFAULT_SOUND, isValidSound} from '../../src/core/sound.js';
 
@@ -82,4 +82,23 @@ test('sound ids', () => {
     assert.ok(!isValidSound('file://relative'));
     assert.ok(!isValidSound('/usr/share/sounds/x.oga'));
     assert.ok(!isValidSound(null));
+});
+
+test('newPresetId gives unique ids', () => {
+    const ids = new Set(Array.from({length: 100}, () => newPresetId(1000)));
+    assert.equal(ids.size, 100);
+});
+
+test('slotFor: own slot, else the lowest free one, else null', () => {
+    const a = createPreset({id: 'a', input: '1m', hotkeySlot: 1});
+    const b = createPreset({id: 'b', input: '2m', hotkeySlot: 3});
+    const c = createPreset({id: 'c', input: '3m'});
+    assert.equal(slotFor([a, b, c], 'b'), 3);
+    assert.equal(slotFor([a, b, c], 'c'), 2);
+    assert.equal(slotFor([a, b, c], null), 2);
+
+    const full = Array.from({length: 9}, (_, i) =>
+        createPreset({id: `p${i}`, input: '1m', hotkeySlot: i + 1}));
+    assert.equal(slotFor(full, null), null);
+    assert.equal(slotFor(full, 'p4'), 5);
 });

@@ -27,6 +27,7 @@ class TimersGeneralPage extends Adw.PreferencesPage {
         });
 
         this.add(this._soundGroup(storage, extensionDir));
+        this.add(this._menuGroup(storage));
         this.add(this._shortcutGroup(storage));
         this.add(this._aboutGroup(metadata));
     }
@@ -66,13 +67,27 @@ class TimersGeneralPage extends Adw.PreferencesPage {
         return group;
     }
 
+    _menuGroup(storage) {
+        const group = new Adw.PreferencesGroup({title: _('Menu')});
+        const recentRow = Adw.SpinRow.new_with_range(0, 20, 1);
+        recentRow.title = _('Recent timers to show');
+        recentRow.subtitle = _('0 hides the Recent list');
+        storage.settings.bind(Keys.RECENT_SIZE, recentRow, 'value', Gio.SettingsBindFlags.DEFAULT);
+        group.add(recentRow);
+        return group;
+    }
+
     _shortcutGroup(storage) {
         const group = new Adw.PreferencesGroup({title: _('Keyboard shortcut')});
         group.add(new HotkeyRow({
             title: _('Open the timers menu'),
             subtitle: _('Opens the menu ready to type a time'),
-            storage,
-            key: Keys.OPEN_MENU_HOTKEY,
+            getAccelerator: () => storage.getHotkey(Keys.OPEN_MENU_HOTKEY),
+            setAccelerator: accelerator => storage.setHotkey(Keys.OPEN_MENU_HOTKEY, accelerator),
+            watch: onChange => {
+                const id = storage.connectChanged(Keys.OPEN_MENU_HOTKEY, onChange);
+                return () => storage.disconnect(id);
+            },
         }));
         return group;
     }

@@ -32,4 +32,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   rows have their own icons; everything follows the 12/24-hour setting.
 - Alarms follow time zone changes: an alarm for 14:30 still rings at 14:30
   local time after the time zone changes.
+- Presets: start saved timers with one click from the menu or with their own
+  keyboard shortcut (up to 9). Each has a time, an optional name and its own
+  sound. Manage them on the new Presets page in the preferences, or save a
+  recent timer with ☆ in the menu.
+- Recent list in the menu: timers you typed, newest first; click one to start
+  it again. "Recent timers to show" in the preferences (0 hides the list).
 - Preferences: default sound with preview, repeat option, shortcut recorder.

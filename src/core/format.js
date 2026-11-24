@@ -126,9 +126,25 @@ export class Formatter {
      * @param {boolean} use12h
      */
     preview(spec, nowMs, use12h) {
+        const tomorrow = spec.kind === 'alarm' &&
+            nextAlarmTime(spec.hours, spec.minutes, nowMs).tomorrow;
+        return this.#describe(spec, use12h, tomorrow);
+    }
+
+    /**
+     * Name for a saved input (preset or recent entry), independent of the
+     * current time: "12 min · Pizza", "Alarm 22:10".
+     *
+     * @param {import('./parser.js').TimerSpec} spec
+     * @param {boolean} use12h
+     */
+    describe(spec, use12h) {
+        return this.#describe(spec, use12h, false);
+    }
+
+    #describe(spec, use12h, tomorrow) {
         const time = spec.kind === 'alarm'
-            ? this.#alarmName(spec.hours, spec.minutes, use12h,
-                nextAlarmTime(spec.hours, spec.minutes, nowMs).tomorrow)
+            ? this.#alarmName(spec.hours, spec.minutes, use12h, tomorrow)
             : this.duration(spec.durationMs);
         return spec.label ? `${time} · ${spec.label}` : time;
     }
@@ -213,6 +229,27 @@ export class Formatter {
             ? _('Alarm tomorrow %s').replace('%s', time)
             : _('Alarm %s').replace('%s', time);
     }
+}
+
+const MODIFIER_NAMES = {
+    primary: 'Ctrl', control: 'Ctrl', ctrl: 'Ctrl', super: 'Super',
+    alt: 'Alt', shift: 'Shift', meta: 'Meta', hyper: 'Hyper',
+};
+
+/**
+ * Readable form of a GTK accelerator: "<Control><Super>t" → "Ctrl+Super+T".
+ * '' for no shortcut.
+ *
+ * @param {string} accelerator
+ */
+export function formatAccelerator(accelerator) {
+    if (!accelerator)
+        return '';
+    const modifiers = [...accelerator.matchAll(/<([^>]+)>/g)]
+        .map(([, name]) => MODIFIER_NAMES[name.toLowerCase()] ?? name);
+    const key = accelerator.replace(/<[^>]+>/g, '');
+    const keyName = key.length === 1 ? key.toUpperCase() : key.replace(/^./, c => c.toUpperCase());
+    return [...new Set(modifiers), keyName].join('+');
 }
 
 function pad(n) {

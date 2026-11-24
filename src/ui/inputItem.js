@@ -24,10 +24,13 @@ export const InputItem = GObject.registerClass({
      * @param {import('../core/timerManager.js').TimerManager} deps.manager
      * @param {import('../core/format.js').Formatter} deps.formatter
      * @param {import('../services/clockFormat.js').ClockFormat} deps.clockFormat
+     * @param {import('../services/library.js').Library} deps.library - starts
+     *   timers and records them in Recent
      */
-    _init({manager, formatter, clockFormat}) {
+    _init({manager, formatter, clockFormat, library}) {
         super._init({reactive: false, can_focus: false, style_class: 'timers-input-item'});
         this._manager = manager;
+        this._library = library;
         this._formatter = formatter;
         this._clockFormat = clockFormat;
 
@@ -80,7 +83,7 @@ export const InputItem = GObject.registerClass({
     }
 
     _start() {
-        const result = this._manager.startFromInput(this._entry.get_text());
+        const result = this._library.startInput(this._entry.get_text());
         if (!result.ok)
             return;
         this._entry.set_text('');

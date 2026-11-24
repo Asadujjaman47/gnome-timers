@@ -24,8 +24,15 @@ export function normalizeInput(input) {
     return String(input).trim().split(/\s+/).join(' ');
 }
 
-const sameInput = (a, b) =>
-    normalizeInput(a).toLowerCase() === normalizeInput(b).toLowerCase();
+/**
+ * Whether two inputs are the same, ignoring case and spacing.
+ *
+ * @param {string} a
+ * @param {string} b
+ */
+export function sameInput(a, b) {
+    return normalizeInput(a).toLowerCase() === normalizeInput(b).toLowerCase();
+}
 
 /**
  * Moves `input` to the front (adding it if new).
@@ -51,6 +58,21 @@ export function addRecent(list, input, now, max = MAX_RECENT) {
  */
 export function removeRecent(list, input) {
     return list.filter(entry => !sameInput(entry.input, input));
+}
+
+/**
+ * The entries the menu shows: those that are not also presets (presets have
+ * their own section), up to `size`.
+ *
+ * @param {RecentEntry[]} recent
+ * @param {{input: string}[]} presets
+ * @param {number} size - the `recent-size` setting; 0 hides the list
+ * @returns {RecentEntry[]}
+ */
+export function visibleRecent(recent, presets, size) {
+    return recent
+        .filter(entry => !presets.some(p => sameInput(p.input, entry.input)))
+        .slice(0, Math.max(0, size));
 }
 
 /**
