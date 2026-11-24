@@ -138,9 +138,18 @@ export default class ScreenshotDriver extends Extension {
         timers._indicator.menu.close();
         await wait(500);
 
-        // A finished timer: notification banner.
+        // A finished timer: notification banner. Other banners (e.g. a test
+        // session's "Screen Lock disabled") are removed first so ours shows.
+        for (const source of Main.messageTray.getSources()) {
+            if (source.title !== 'Timers')
+                source.destroy();
+        }
+        await wait(500);
         library.startInput('2s tea');
         await wait(3500);
+        const ours = Main.messageTray.getSources().filter(source => source.title === 'Timers');
+        this._log(`notifications: ${ours.flatMap(source =>
+            source.notifications.map(n => `${n.title} / ${n.body}`)).join('; ') || 'none'}`);
         const monitor = Main.layoutManager.primaryMonitor;
         await this._shot('notification', {x: monitor.width / 2 - 320, y: 0, width: 640, height: 180});
 

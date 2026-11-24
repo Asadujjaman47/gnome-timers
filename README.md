@@ -98,6 +98,10 @@ helper extension (`tools/screenshots/driver/`) that drives the menu in the
 dark, light, high-contrast and large-text styles and saves screenshots to
 `build/screenshots/`.
 
+`tools/compat/run.sh ubuntu-24.04` runs the same checks against GNOME 46 in a
+podman container (output in `build/compat/ubuntu-24.04/`). No GPU is needed.
+Remove the image afterwards with `podman rmi localhost/timers-compat:ubuntu-24.04`.
+
 Logs from the running extension:
 
 ```sh

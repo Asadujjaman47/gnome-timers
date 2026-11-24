@@ -5,13 +5,14 @@
 # touched. Output: build/screenshots/*.png and driver.log.
 #
 # Usage: tools/screenshots/run.sh <extension zip> <uuid>
+# TIMERS_SCREENSHOTS_OUT overrides the output folder.
 set -euo pipefail
 
 ZIP=$(realpath "$1")
 UUID=$2
 ROOT=$(realpath "$(dirname "$0")/../..")
-OUT=$ROOT/build/screenshots
-WORK=$ROOT/build/screenshots-session
+OUT=${TIMERS_SCREENSHOTS_OUT:-$ROOT/build/screenshots}
+WORK=$OUT-session
 DRIVER_UUID=timers-screenshot-driver@asadujjaman47.github.io
 
 rm -rf "$OUT" "$WORK"
@@ -20,6 +21,7 @@ gnome-extensions pack --force --out-dir="$WORK" "$ROOT/tools/screenshots/driver"
 
 # The Wayland socket path must stay under 108 bytes, so use a short runtime dir.
 RUNTIME=/run/user/$(id -u)/timers-shots-$$
+mkdir -p "$(dirname "$RUNTIME")"
 mkdir -m 700 "$RUNTIME"
 trap 'rm -rf "${RUNTIME:?}"' EXIT
 
@@ -41,7 +43,7 @@ env -u WAYLAND_DISPLAY -u DISPLAY \
             sleep 1
         done
         kill "$shell"; wait "$shell" 2>/dev/null || true
-    ' "$ZIP" "$WORK/$DRIVER_UUID.shell-extension.zip" "$UUID" "$DRIVER_UUID" 2>/dev/null
+    ' "$ZIP" "$WORK/$DRIVER_UUID.shell-extension.zip" "$UUID" "$DRIVER_UUID" 2>"$OUT/session.log"
 
 echo "Screenshots in $OUT:"
 ls "$OUT"
