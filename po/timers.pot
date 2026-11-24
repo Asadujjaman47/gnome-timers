@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Timers\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-24 22:07+0600\n"
+"POT-Creation-Date: 2026-11-24 22:56+0600\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,105 +17,107 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: src/core/format.js:52
+#. TRANSLATORS: hours in a duration, e.g. "1 h 30 min"
+#: src/core/format.js:53
 #, javascript-format
 msgid "%d h"
 msgstr ""
 
-#: src/core/format.js:54
+#. TRANSLATORS: minutes in a duration, e.g. "1 h 30 min"
+#: src/core/format.js:56
 #, javascript-format
 msgid "%d min"
 msgstr ""
 
-#: src/core/format.js:56
+#. TRANSLATORS: seconds in a duration, e.g. "1 min 12 s"
+#: src/core/format.js:59
 #, javascript-format
 msgid "%d s"
 msgstr ""
 
-#: src/core/format.js:70
+#: src/core/format.js:73
 msgid "AM"
 msgstr ""
 
-#: src/core/format.js:70
+#: src/core/format.js:73
 msgid "PM"
 msgstr ""
 
-#: src/core/format.js:100
+#. TRANSLATORS: %s is a clock time, e.g. "tomorrow 07:00"
+#: src/core/format.js:104
 #, javascript-format
 msgid "tomorrow %s"
 msgstr ""
 
-#: src/core/format.js:118 src/core/format.js:230
+#: src/core/format.js:122 src/core/format.js:236
 #, javascript-format
 msgid "Alarm %s"
 msgstr ""
 
-#: src/core/format.js:184
+#. TRANSLATORS: a timer's name and when it was started, e.g. "5 min (started 14:02)"
+#: src/core/format.js:189
 #, javascript-format
 msgid "%s (started %s)"
 msgstr ""
 
-#: src/core/format.js:191
+#: src/core/format.js:196
 #, javascript-format
 msgid "Finished at %s"
 msgstr ""
 
-#: src/core/format.js:194
+#: src/core/format.js:199
 #, javascript-format
 msgid "Alarm at %s"
 msgstr ""
 
-#: src/core/format.js:195
+#: src/core/format.js:200
 msgid "Time is up"
 msgstr ""
 
-#: src/core/format.js:198
+#. TRANSLATORS: %s is a duration, e.g. "12 min timer finished"
+#: src/core/format.js:204
 #, javascript-format
 msgid "%s timer finished"
 msgstr ""
 
-#: src/core/format.js:199
+#: src/core/format.js:205
 msgid "Timer finished"
 msgstr ""
 
-#: src/core/format.js:215
+#: src/core/format.js:221
 msgid "The time must be longer than zero"
 msgstr ""
 
-#: src/core/format.js:217
+#: src/core/format.js:223
 msgid "The longest timer is 99 hours"
 msgstr ""
 
-#: src/core/format.js:219
+#: src/core/format.js:225
 msgid "Not a valid clock time"
 msgstr ""
 
-#: src/core/format.js:221
+#: src/core/format.js:227
 msgid "Type a time like 5m, 1:30 or @14:30"
 msgstr ""
 
-#: src/core/format.js:229
+#: src/core/format.js:235
 #, javascript-format
 msgid "Alarm tomorrow %s"
 msgstr ""
 
-#: src/ui/inputItem.js:38
-msgid "5m, 1:30, 12m pizza, @14:30"
-msgstr ""
-
-#: src/ui/timerRow.js:77
+#: src/ui/timerRow.js:81
 msgid "Resume"
 msgstr ""
 
-#: src/ui/timerRow.js:78
+#: src/ui/timerRow.js:82
 msgid "Pause"
 msgstr ""
 
-#: src/ui/timerRow.js:80
+#: src/ui/timerRow.js:84
 msgid "Dismiss"
 msgstr ""
 
-#: src/ui/timerRow.js:81 src/services/notifier.js:47
+#: src/ui/timerRow.js:85 src/services/notifier.js:47
 msgid "Stop"
 msgstr ""
 
@@ -123,7 +125,7 @@ msgstr ""
 msgid "Timers"
 msgstr ""
 
-#: src/ui/indicator.js:133
+#: src/ui/indicator.js:132
 msgid "Settings"
 msgstr ""
 
@@ -144,6 +146,10 @@ msgstr ""
 msgid "Clear recent"
 msgstr ""
 
+#: src/ui/inputItem.js:38
+msgid "5m, 1:30, 12m pizza, @14:30"
+msgstr ""
+
 #: src/prefs/widgets/soundRow.js:15 src/prefs/presetsPage.js:19
 msgid "Bell"
 msgstr ""
@@ -160,23 +166,23 @@ msgstr ""
 msgid "Play"
 msgstr ""
 
-#: src/prefs/widgets/soundRow.js:59 src/prefs/widgets/soundRow.js:94
+#: src/prefs/widgets/soundRow.js:61 src/prefs/widgets/soundRow.js:116
 msgid "File not found; the default sound will be used"
 msgstr ""
 
-#: src/prefs/widgets/soundRow.js:78
+#: src/prefs/widgets/soundRow.js:87
 msgid "Default"
 msgstr ""
 
-#: src/prefs/widgets/soundRow.js:85
+#: src/prefs/widgets/soundRow.js:94
 msgid "Other file…"
 msgstr ""
 
-#: src/prefs/widgets/soundRow.js:117
+#: src/prefs/widgets/soundRow.js:143
 msgid "Sound files"
 msgstr ""
 
-#: src/prefs/widgets/soundRow.js:121
+#: src/prefs/widgets/soundRow.js:147
 msgid "Choose a sound file"
 msgstr ""
 

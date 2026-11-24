@@ -49,10 +49,13 @@ export class Formatter {
 
         const parts = [];
         if (hours)
+            // TRANSLATORS: hours in a duration, e.g. "1 h 30 min"
             parts.push(_('%d h').replace('%d', hours));
         if (minutes)
+            // TRANSLATORS: minutes in a duration, e.g. "1 h 30 min"
             parts.push(_('%d min').replace('%d', minutes));
         if (seconds || parts.length === 0)
+            // TRANSLATORS: seconds in a duration, e.g. "1 min 12 s"
             parts.push(_('%d s').replace('%d', seconds));
         return parts.join(' ');
     }
@@ -97,6 +100,7 @@ export class Formatter {
         const _ = this.#gettext;
         const time = this.clock(timer.hours, timer.minutes, use12h);
         const at = timer.endsAt ?? timer.finishedAt;
+        // TRANSLATORS: %s is a clock time, e.g. "tomorrow 07:00"
         return isLaterDay(at, now) ? _('tomorrow %s').replace('%s', time) : time;
     }
 
@@ -181,6 +185,7 @@ export class Formatter {
         const _ = this.#gettext;
         let title = this.timerName(timer, use12h);
         if (duplicateName) {
+            // TRANSLATORS: a timer's name and when it was started, e.g. "5 min (started 14:02)"
             title = _('%s (started %s)')
                 .replace('%s', title)
                 .replace('%s', this.clockAt(timer.startedAt, use12h));
@@ -195,6 +200,7 @@ export class Formatter {
                 : _('Time is up');
         } else {
             body = timer.label
+                // TRANSLATORS: %s is a duration, e.g. "12 min timer finished"
                 ? _('%s timer finished').replace('%s', this.duration(timer.durationMs))
                 : _('Timer finished');
         }

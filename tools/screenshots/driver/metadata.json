@@ -1,0 +1,6 @@
+{
+  "uuid": "timers-screenshot-driver@asadujjaman47.github.io",
+  "name": "Timers screenshot driver (development only)",
+  "description": "Test helper for tools/screenshots/run.sh. Not part of the Timers extension.",
+  "shell-version": ["46", "47", "48", "49", "50", "51"]
+}

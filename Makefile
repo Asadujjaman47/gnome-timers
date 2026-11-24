@@ -10,7 +10,7 @@ PACK_SOURCES := metadata.json stylesheet.css $(JS_SOURCES) \
 # GNOME 49+ replaced `gnome-shell --nested` with `--devkit` (needs mutter-devkit).
 NESTED_FLAG := $(shell gnome-shell --help 2>/dev/null | grep -q -- --devkit && echo --devkit || echo --nested)
 
-.PHONY: help check lint test schemas schemas-check pack install enable disable \
+.PHONY: help check lint test schemas schemas-check pack install enable disable screenshots \
         uninstall run pot clean
 
 help:
@@ -77,3 +77,6 @@ pot:
 
 clean:
 	rm -rf $(BUILD_DIR) schemas/gschemas.compiled
+
+screenshots: pack
+	tools/screenshots/run.sh $(ZIP) $(UUID)
