@@ -123,17 +123,6 @@ test('rowName: alarms always show when they ring', () => {
     assert.equal(f.rowName(runningTimer('25m', now), now, false), '25 min');
 });
 
-test('panelText: clock time for running alarms, time left otherwise', () => {
-    const now = localTime(2026, 11, 24, 13, 0);
-    assert.equal(f.panelText(runningTimer('@14:30', now), now, false), '14:30');
-    assert.equal(f.panelText(runningTimer('@14:30', now), now, true), '2:30 PM');
-    assert.equal(f.panelText(runningTimer('25m', now), now + MINUTE, false), '24:00');
-
-    const finished = runningTimer('@13:01', now);
-    finished.checkFinished(now + MINUTE);
-    assert.equal(f.panelText(finished, now + MINUTE, false), '0:00');
-});
-
 test('all text goes through the given gettext function', () => {
     const translated = new Formatter({gettext: s => `[${s}]`});
     assert.equal(translated.duration(HOUR + MINUTE), '[1 h] [1 min]');

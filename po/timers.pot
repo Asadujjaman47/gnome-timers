@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Timers\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-24 21:38+0600\n"
+"POT-Creation-Date: 2026-11-24 21:49+0600\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -45,56 +45,56 @@ msgstr ""
 msgid "tomorrow %s"
 msgstr ""
 
-#: src/core/format.js:118 src/core/format.js:228
+#: src/core/format.js:118 src/core/format.js:214
 #, javascript-format
 msgid "Alarm %s"
 msgstr ""
 
-#: src/core/format.js:182
+#: src/core/format.js:168
 #, javascript-format
 msgid "%s (started %s)"
 msgstr ""
 
-#: src/core/format.js:189
+#: src/core/format.js:175
 #, javascript-format
 msgid "Finished at %s"
 msgstr ""
 
-#: src/core/format.js:192
+#: src/core/format.js:178
 #, javascript-format
 msgid "Alarm at %s"
 msgstr ""
 
-#: src/core/format.js:193
+#: src/core/format.js:179
 msgid "Time is up"
 msgstr ""
 
-#: src/core/format.js:196
+#: src/core/format.js:182
 #, javascript-format
 msgid "%s timer finished"
 msgstr ""
 
-#: src/core/format.js:197
+#: src/core/format.js:183
 msgid "Timer finished"
 msgstr ""
 
-#: src/core/format.js:213
+#: src/core/format.js:199
 msgid "The time must be longer than zero"
 msgstr ""
 
-#: src/core/format.js:215
+#: src/core/format.js:201
 msgid "The longest timer is 99 hours"
 msgstr ""
 
-#: src/core/format.js:217
+#: src/core/format.js:203
 msgid "Not a valid clock time"
 msgstr ""
 
-#: src/core/format.js:219
+#: src/core/format.js:205
 msgid "Type a time like 5m, 1:30 or @14:30"
 msgstr ""
 
-#: src/core/format.js:227
+#: src/core/format.js:213
 #, javascript-format
 msgid "Alarm tomorrow %s"
 msgstr ""

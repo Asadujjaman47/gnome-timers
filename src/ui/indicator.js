@@ -69,7 +69,7 @@ class TimersIndicator extends PanelMenu.Button {
             gicon: this._timerIcon,
             style_class: 'system-status-icon',
         });
-        // Shown next to the clock time when the panel's main timer is an alarm.
+        // Marks the panel's countdown as an alarm.
         this._alarmIcon = new St.Icon({
             icon_name: 'alarm-symbolic',
             style_class: 'system-status-icon timers-panel-alarm-icon',
@@ -146,7 +146,7 @@ class TimersIndicator extends PanelMenu.Button {
         this._timeLabel.visible = !idle;
         this._countLabel.visible = !idle && others > 0;
         if (!idle) {
-            this._timeLabel.text = this._formatter.panelText(primary, now, use12h);
+            this._timeLabel.text = this._formatter.remaining(primary.remainingAt(now));
             this._countLabel.text = `+${others}`;
         }
         setDimmed(this._timeLabel, state === SummaryState.PAUSED);

@@ -26,8 +26,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   logged out are reported silently.
 - Timers survive disabling the extension and restarting GNOME Shell.
 - Keyboard shortcut (default Ctrl+Super+T) opens the menu ready to type.
-- Alarms at a clock time (`@14:30`, `at 7 am meeting`): the panel shows an
-  alarm icon and the clock time instead of a long countdown; menu rows show
-  when an alarm rings ("Meeting · 14:30", "Alarm tomorrow 07:00"); timer and
-  alarm rows have their own icons; everything follows the 12/24-hour setting.
+- Alarms at a clock time (`@14:30`, `@1010pm`, `@930`, `at 7 am meeting`):
+  the panel shows an alarm icon with the countdown; menu rows show when an
+  alarm rings ("Meeting · 14:30", "Alarm tomorrow 07:00"); timer and alarm
+  rows have their own icons; everything follows the 12/24-hour setting.
+- Alarms follow time zone changes: an alarm for 14:30 still rings at 14:30
+  local time after the time zone changes.
 - Preferences: default sound with preview, repeat option, shortcut recorder.

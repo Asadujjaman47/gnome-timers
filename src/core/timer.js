@@ -1,3 +1,4 @@
+import {isDayKey, localDateTime, localDayKey} from './localTime.js';
 import {nextAlarmTime} from './parser.js';
 import {isValidSound} from './sound.js';
 
@@ -42,6 +43,8 @@ export class Timer {
         this.hours = props.hours ?? null;
         /** @type {number|null} */
         this.minutes = props.minutes ?? null;
+        /** @type {string|null} alarm's local day, "YYYY-MM-DD" */
+        this.alarmDay = props.alarmDay ?? null;
         /** @type {'running'|'paused'|'finished'} */
         this.state = props.state;
         /** @type {number|null} set while running */
@@ -82,6 +85,7 @@ export class Timer {
                 durationMs: at - now,
                 hours: spec.hours,
                 minutes: spec.minutes,
+                alarmDay: localDayKey(at),
                 endsAt: at,
             });
         }
@@ -172,6 +176,23 @@ export class Timer {
         return true;
     }
 
+    /**
+     * Re-anchors a running alarm to its local day and clock time, e.g. after
+     * the time zone changed: "14:30 on 24 Nov" stays 14:30 on 24 Nov in the
+     * new zone. If that moment has passed, the next `update()` finishes it.
+     *
+     * @returns {boolean} whether the end time changed
+     */
+    retargetAlarm() {
+        if (this.kind !== TimerKind.ALARM || !this.isRunning)
+            return false;
+        const endsAt = localDateTime(this.alarmDay, this.hours, this.minutes);
+        if (endsAt === this.endsAt)
+            return false;
+        this.endsAt = endsAt;
+        return true;
+    }
+
     toJSON() {
         return {
             id: this.id,
@@ -182,6 +203,7 @@ export class Timer {
             durationMs: this.durationMs,
             hours: this.hours,
             minutes: this.minutes,
+            alarmDay: this.alarmDay,
             state: this.state,
             endsAt: this.endsAt,
             remainingMs: this.remainingMs,
@@ -226,6 +248,8 @@ export class Timer {
             return null;
         if (d.state === TimerState.FINISHED && !isNum(d.finishedAt))
             return null;
+        if (d.kind === TimerKind.ALARM && d.alarmDay !== undefined && !isDayKey(d.alarmDay))
+            return null;
 
         return new Timer({
             id: d.id,
@@ -236,6 +260,10 @@ export class Timer {
             durationMs: d.durationMs,
             hours: d.kind === TimerKind.ALARM ? d.hours : null,
             minutes: d.kind === TimerKind.ALARM ? d.minutes : null,
+            // Saved before alarmDay existed: take it from the end time.
+            alarmDay: d.kind === TimerKind.ALARM
+                ? d.alarmDay ?? localDayKey(d.endsAt ?? d.finishedAt)
+                : null,
             state: d.state,
             endsAt: d.state === TimerState.RUNNING ? d.endsAt : null,
             remainingMs: d.state === TimerState.PAUSED ? d.remainingMs : null,

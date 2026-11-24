@@ -13,6 +13,7 @@ import {Notifier} from './src/services/notifier.js';
 import {SoundPlayer} from './src/services/soundPlayer.js';
 import {Keys, Storage} from './src/services/storage.js';
 import {Ticker} from './src/services/ticker.js';
+import {TimeZoneWatcher} from './src/services/timeZone.js';
 import {ICON_FILE, TimersIndicator} from './src/ui/indicator.js';
 
 /*
@@ -66,6 +67,10 @@ export default class TimersExtension extends Extension {
         });
         Main.panel.addToStatusArea(this.uuid, this._indicator);
 
+        // Alarms keep their local day and clock time when the time zone changes.
+        this._timeZone = new TimeZoneWatcher();
+        this._timeZone.connect('changed', () => this._manager.retargetAlarms());
+
         this._keybindings = new Keybindings(storage.settings);
         this._keybindings.bind(Keys.OPEN_MENU_HOTKEY, () => this._indicator.openForInput());
 
@@ -75,6 +80,7 @@ export default class TimersExtension extends Extension {
 
     disable() {
         this._keybindings?.destroy();
+        this._timeZone?.destroy();
         this._indicator?.destroy();
         this._ticker?.destroy();
         if (this._saveId)
@@ -86,6 +92,7 @@ export default class TimersExtension extends Extension {
         this._clockFormat?.destroy();
 
         this._keybindings = null;
+        this._timeZone = null;
         this._indicator = null;
         this._ticker = null;
         this._saveId = 0;

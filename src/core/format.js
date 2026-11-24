@@ -119,20 +119,6 @@ export class Formatter {
     }
 
     /**
-     * Text in the top bar for the panel's main timer: a running alarm shows
-     * its clock time ("07:00"), everything else the time left.
-     *
-     * @param {import('./timer.js').Timer} timer
-     * @param {number} now
-     * @param {boolean} use12h
-     */
-    panelText(timer, now, use12h) {
-        if (timer.kind === 'alarm' && timer.isRunning)
-            return this.clock(timer.hours, timer.minutes, use12h);
-        return this.remaining(timer.remainingAt(now));
-    }
-
-    /**
      * Live preview under the input: "12 min · Pizza", "Alarm tomorrow 07:00".
      *
      * @param {import('./parser.js').TimerSpec} spec

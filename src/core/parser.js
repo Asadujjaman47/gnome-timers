@@ -11,6 +11,7 @@
  *
  * Alarms at a clock time:
  *   @14:30, @ 14:30, at 14:30, @2:30pm, at 2 pm, @7  (24 h unless am/pm)
+ *   @1430, @930, @1010pm, @10.10pm  (3–4 digits: the last two are minutes)
  *   @14:30 meeting → label "Meeting"
  */
 
@@ -51,7 +52,8 @@ const SMALLER_UNIT = {h: 'm', m: 's'};
 const DIGITS_RE = /^\d+$/;
 const COLON_RE = /^\d+(?::\d+){1,2}$/;
 const UNIT_TOKEN_RE = /^((?:\d+[hms])+)(\d*)$/i;
-const CLOCK_RE = /^(\d{1,2})(?::(\d{2}))?(am|pm|a|p)?$/i;
+const CLOCK_RE = /^(\d{1,2})(?:[:.](\d{2}))?(am|pm|a|p)?$/i;
+const COMPACT_CLOCK_RE = /^(\d{1,2})(\d{2})(am|pm|a|p)?$/i;
 const MERIDIEM_RE = /^(am|pm)$/i;
 
 const ok = spec => ({ok: true, spec});
@@ -100,7 +102,7 @@ function parseAlarm(tokens) {
         ? tokens.slice(1)
         : [tokens[0].slice(1), ...tokens.slice(1)];
 
-    const match = CLOCK_RE.exec(rest[0] ?? '');
+    const match = CLOCK_RE.exec(rest[0] ?? '') ?? COMPACT_CLOCK_RE.exec(rest[0] ?? '');
     if (!match) {
         // "at home" is not an alarm, just text without a time.
         return fail(isAt ? ParseError.INVALID : ParseError.INVALID_TIME);

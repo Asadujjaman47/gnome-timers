@@ -170,6 +170,22 @@ export class TimerManager {
     }
 
     /**
+     * Re-anchors running alarms to their local day and clock time. Call when
+     * the time zone changes; alarms whose moment has now passed are finished.
+     *
+     * @returns {Timer[]} alarms whose end time changed
+     */
+    retargetAlarms() {
+        const changed = [...this.#timers.values()].filter(t => t.retargetAlarm());
+        for (const timer of changed)
+            this.#signals.emit('updated', timer);
+        if (changed.length > 0)
+            this.#signals.emit('changed');
+        this.update();
+        return changed;
+    }
+
+    /**
      * Milliseconds until a running timer's displayed seconds change (or it
      * finishes), so the ticker can wake exactly then. Null when nothing runs.
      *

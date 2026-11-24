@@ -127,6 +127,18 @@ test('alarms: am/pm, attached or separate', () => {
     check('@12:15 am', alarm(0, 15));
 });
 
+test('alarms: compact times without a colon, and a dot separator', () => {
+    check('@1430', alarm(14, 30));
+    check('@930', alarm(9, 30));
+    check('@0730', alarm(7, 30));
+    check('@1010pm', alarm(22, 10));
+    check('@1010 pm', alarm(22, 10));
+    check('at 1010pm call', alarm(22, 10, 'Call'));
+    check('@1205am', alarm(0, 5));
+    check('@10.10pm', alarm(22, 10));
+    check('@14.30', alarm(14, 30));
+});
+
 test('alarms with labels', () => {
     check('@14:30 meeting', alarm(14, 30, 'Meeting'));
     check('at 2 pm call mom', alarm(14, 0, 'Call mom'));
@@ -140,7 +152,10 @@ test('invalid clock times', () => {
     checkError('@14:60', ParseError.INVALID_TIME);
     checkError('@13pm', ParseError.INVALID_TIME);
     checkError('@0am', ParseError.INVALID_TIME);
-    checkError('@1430', ParseError.INVALID_TIME);
+    checkError('@2460', ParseError.INVALID_TIME);
+    checkError('@1360pm', ParseError.INVALID_TIME);
+    checkError('@12345', ParseError.INVALID_TIME);
+    checkError('@14:3', ParseError.INVALID_TIME);
     checkError('@lunch', ParseError.INVALID_TIME);
 });
 
