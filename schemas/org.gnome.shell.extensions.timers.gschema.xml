@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist gettext-domain="timers@asadujjaman47.github.io">
+  <schema id="org.gnome.shell.extensions.timers" path="/org/gnome/shell/extensions/timers/">
+
+    <!-- Stored data (versioned JSON, read/written only through src/services/storage.js) -->
+    <key name="data-version" type="i">
+      <default>1</default>
+      <summary>Data format version</summary>
+      <description>Version of the JSON stored in the timers, presets and recent keys. Used for migrations.</description>
+    </key>
+    <key name="timers" type="s">
+      <default>'[]'</default>
+      <summary>Active timers</summary>
+      <description>JSON list of running, paused and finished timers, so they survive a shell restart.</description>
+    </key>
+    <key name="presets" type="s">
+      <default>'[]'</default>
+      <summary>Presets</summary>
+      <description>JSON list of saved timer presets.</description>
+    </key>
+    <key name="recent" type="s">
+      <default>'[]'</default>
+      <summary>Recent timers</summary>
+      <description>JSON list of recently started timers.</description>
+    </key>
+
+    <!-- Sound -->
+    <key name="default-sound" type="s">
+      <default>'complete'</default>
+      <summary>Default sound</summary>
+      <description>Sound used by timers without their own sound: 'bell', 'complete', 'message' or a file:// URI.</description>
+    </key>
+    <key name="loop-sound" type="b">
+      <default>false</default>
+      <summary>Loop sound until dismissed</summary>
+      <description>If enabled, the alarm sound repeats until the finished timer is dismissed.</description>
+    </key>
+
+    <!-- Recent list -->
+    <key name="recent-size" type="i">
+      <range min="0" max="20"/>
+      <default>5</default>
+      <summary>Number of recent timers</summary>
+      <description>How many recent timers to show in the menu. 0 hides the list.</description>
+    </key>
+
+    <!-- Keyboard shortcuts -->
+    <key name="open-menu-hotkey" type="as">
+      <default><![CDATA[['<Ctrl><Super>t']]]></default>
+      <summary>Open the timers menu</summary>
+      <description>Opens the menu with the time input focused.</description>
+    </key>
+    <key name="preset-hotkey-1" type="as">
+      <default>[]</default>
+      <summary>Preset hotkey slot 1</summary>
+    </key>
+    <key name="preset-hotkey-2" type="as">
+      <default>[]</default>
+      <summary>Preset hotkey slot 2</summary>
+    </key>
+    <key name="preset-hotkey-3" type="as">
+      <default>[]</default>
+      <summary>Preset hotkey slot 3</summary>
+    </key>
+    <key name="preset-hotkey-4" type="as">
+      <default>[]</default>
+      <summary>Preset hotkey slot 4</summary>
+    </key>
+    <key name="preset-hotkey-5" type="as">
+      <default>[]</default>
+      <summary>Preset hotkey slot 5</summary>
+    </key>
+    <key name="preset-hotkey-6" type="as">
+      <default>[]</default>
+      <summary>Preset hotkey slot 6</summary>
+    </key>
+    <key name="preset-hotkey-7" type="as">
+      <default>[]</default>
+      <summary>Preset hotkey slot 7</summary>
+    </key>
+    <key name="preset-hotkey-8" type="as">
+      <default>[]</default>
+      <summary>Preset hotkey slot 8</summary>
+    </key>
+    <key name="preset-hotkey-9" type="as">
+      <default>[]</default>
+      <summary>Preset hotkey slot 9</summary>
+    </key>
+
+  </schema>
+</schemalist>

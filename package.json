@@ -1,0 +1,17 @@
+{
+  "name": "gnome-timers",
+  "version": "0.1.0",
+  "description": "Development tooling for the Timers GNOME Shell extension",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "scripts": {
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "test": "gjs -m tests/run.js"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.15.0"
+  }
+}

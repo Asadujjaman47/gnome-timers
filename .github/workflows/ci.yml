@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  check:
+    name: Lint, test, schema check
+    # Ubuntu 24.04 ships GNOME 46 / GJS 1.80, our oldest supported runtime.
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: npm
+
+      - name: Install GJS and GLib tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends gjs libglib2.0-bin
+
+      - run: npm ci
+      - run: make check
+
+  pack:
+    name: Build extension zip
+    needs: check
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install gnome-extensions tool
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends gnome-shell gettext
+
+      - run: make pack
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: extension-zip
+          path: build/*.shell-extension.zip

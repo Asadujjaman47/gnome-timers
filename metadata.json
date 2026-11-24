@@ -1,0 +1,11 @@
+{
+  "uuid": "timers@asadujjaman47.github.io",
+  "name": "Timers",
+  "description": "Run multiple countdown timers and clock-time alarms from the top panel. Label your timers, save presets, pick a sound per preset and restart recent timers with one click.",
+  "version-name": "0.1.0",
+  "shell-version": ["46", "47", "48", "49", "50", "51"],
+  "url": "https://github.com/Asadujjaman47/gnome-timers",
+  "settings-schema": "org.gnome.shell.extensions.timers",
+  "gettext-domain": "timers@asadujjaman47.github.io",
+  "session-modes": ["user", "unlock-dialog"]
+}
