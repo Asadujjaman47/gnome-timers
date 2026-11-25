@@ -57,6 +57,55 @@ test('unit format in any order and any case', () => {
     check('5M', countdown(5 * MINUTE));
 });
 
+test('unit words, with or without a space', () => {
+    check('5 m', countdown(5 * MINUTE));
+    check('5 min', countdown(5 * MINUTE));
+    check('5 mins tea', countdown(5 * MINUTE, 'Tea'));
+    check('10 minutes', countdown(10 * MINUTE));
+    check('2 hours', countdown(2 * HOUR));
+    check('1 hour 30 minutes', countdown(HOUR + 30 * MINUTE));
+    check('30 sec', countdown(30 * SECOND));
+    check('45 Seconds', countdown(45 * SECOND));
+    check('5min', countdown(5 * MINUTE));
+    check('1hr30min', countdown(HOUR + 30 * MINUTE));
+    check('90sec', countdown(90 * SECOND));
+    check('2Hours 5mins', countdown(2 * HOUR + 5 * MINUTE));
+    checkError('5 min 3 min', ParseError.INVALID);
+    checkError('5ms', ParseError.INVALID);
+});
+
+test('decimals with a unit, with a dot or a comma', () => {
+    check('1.5h', countdown(HOUR + 30 * MINUTE));
+    check('1,5h', countdown(HOUR + 30 * MINUTE));
+    check('2.5 min', countdown(2 * MINUTE + 30 * SECOND));
+    check('0.5 sec', countdown(SECOND)); // rounded to whole seconds
+    checkError('0.0001s', ParseError.ZERO);
+    checkError('1.5', ParseError.INVALID);
+});
+
+test('a leading "in" is ignored', () => {
+    check('in 5 min', countdown(5 * MINUTE));
+    check('in 10m tea', countdown(10 * MINUTE, 'Tea'));
+    checkError('in', ParseError.INVALID);
+    checkError('in pizza', ParseError.INVALID);
+});
+
+test('digits from other scripts and invisible characters', () => {
+    check('৫m', countdown(5 * MINUTE)); // Bengali
+    check('१२ min', countdown(12 * MINUTE)); // Devanagari
+    check('٣٠s', countdown(30 * SECOND)); // Arabic-Indic
+    check('５m', countdown(5 * MINUTE)); // full-width
+    check('\u200b5m\u200b', countdown(5 * MINUTE));
+    check('5m\u0007bell', countdown(5 * MINUTE, 'Bell'));
+    check('5m ৫ জন', countdown(5 * MINUTE, '৫ জন')); // labels are left as typed
+});
+
+test('long labels are shortened', () => {
+    const label = parseInput(`5m ${'x'.repeat(500)}`).spec.label;
+    assert.equal(label.length, 100);
+    assert.ok(label.endsWith('…'));
+});
+
 test('trailing digits in a unit token take the next smaller unit', () => {
     check('1h30', countdown(HOUR + 30 * MINUTE));
     check('2m30', countdown(2 * MINUTE + 30 * SECOND));
@@ -137,6 +186,26 @@ test('alarms: compact times without a colon, and a dot separator', () => {
     check('@1205am', alarm(0, 5));
     check('@10.10pm', alarm(22, 10));
     check('@14.30', alarm(14, 30));
+});
+
+test('clock times with am/pm need no @', () => {
+    check('5pm', alarm(17, 0));
+    check('5:30pm', alarm(17, 30));
+    check('5:30 pm call', alarm(17, 30, 'Call'));
+    check('7 am', alarm(7, 0));
+    check('10.30pm', alarm(22, 30));
+    check('1010pm', alarm(22, 10));
+    check('12 am', alarm(0, 0));
+    check('৫:৩০ pm', alarm(17, 30));
+    checkError('13pm', ParseError.INVALID_TIME);
+    // Without am/pm a colon time stays a countdown, as before.
+    check('14:30', countdown(14 * MINUTE + 30 * SECOND));
+});
+
+test('@noon and @midnight', () => {
+    check('@noon', alarm(12, 0));
+    check('at midnight party', alarm(0, 0, 'Party'));
+    check('＠14：30', alarm(14, 30)); // full-width @ and colon
 });
 
 test('alarms with labels', () => {

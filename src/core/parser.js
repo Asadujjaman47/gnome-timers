@@ -7,15 +7,24 @@
  *   53000    → 5 h 30 min
  *   1:12     → 1 min 12 s  (m:s or h:m:s)
  *   5h 30m   → units in any order; `1h30` = 1 h 30 min, `2m30` = 2 min 30 s
+ *   5 min, 10 minutes, 2 hours, 1hr30min, 90sec  → unit words, with or without a space
+ *   1.5h, 2,5 min  → decimals with a unit
+ *   in 5 min → a leading "in" is ignored
  *   12m pizza → 12 min, label "Pizza"
  *
  * Alarms at a clock time:
  *   @14:30, @ 14:30, at 14:30, @2:30pm, at 2 pm, @7  (24 h unless am/pm)
  *   @1430, @930, @1010pm, @10.10pm  (3–4 digits: the last two are minutes)
+ *   5pm, 5:30 pm, 7 am  (with am/pm, the @ is not needed)
+ *   @noon, @midnight
  *   @14:30 meeting → label "Meeting"
+ *
+ * Invisible characters (e.g. from pasted text) are ignored, and digits from
+ * other scripts (Bengali, Devanagari, Arabic, full-width, …) are read as 0–9.
  */
 
 export const MAX_DURATION_MS = 99 * 60 * 60 * 1000;
+export const MAX_LABEL_LENGTH = 100;
 
 /** Error codes returned in `{ok: false, error}`. */
 export const ParseError = Object.freeze({
@@ -48,13 +57,34 @@ export const ParseError = Object.freeze({
 
 const UNIT_MS = {h: 3_600_000, m: 60_000, s: 1_000};
 const SMALLER_UNIT = {h: 'm', m: 's'};
+const UNIT_WORDS = new Map([
+    ...['h', 'hr', 'hrs', 'hour', 'hours'].map(w => [w, 'h']),
+    ...['m', 'min', 'mins', 'minute', 'minutes'].map(w => [w, 'm']),
+    ...['s', 'sec', 'secs', 'second', 'seconds'].map(w => [w, 's']),
+]);
+// Longest first, so "min" is not read as "m" + "in".
+const UNIT_ALTERNATION = [...UNIT_WORDS.keys()].sort((a, b) => b.length - a.length).join('|');
+const UNIT_PIECE = `\\d+(?:[.,]\\d+)?(?:${UNIT_ALTERNATION})`;
 
 const DIGITS_RE = /^\d+$/;
+const NUMBER_RE = /^\d+(?:[.,]\d+)?$/;
 const COLON_RE = /^\d+(?::\d+){1,2}$/;
-const UNIT_TOKEN_RE = /^((?:\d+[hms])+)(\d*)$/i;
-const CLOCK_RE = /^(\d{1,2})(?:[:.](\d{2}))?(am|pm|a|p)?$/i;
-const COMPACT_CLOCK_RE = /^(\d{1,2})(\d{2})(am|pm|a|p)?$/i;
-const MERIDIEM_RE = /^(am|pm)$/i;
+const UNIT_TOKEN_RE = new RegExp(`^((?:${UNIT_PIECE})+)(\\d*)$`);
+const UNIT_PIECE_RE = new RegExp(`(\\d+(?:[.,]\\d+)?)(${UNIT_ALTERNATION})`, 'g');
+const CLOCK_RE = /^(\d{1,2})(?:[:.](\d{2}))?(am|pm|a|p)?$/;
+const COMPACT_CLOCK_RE = /^(\d{1,2})(\d{2})(am|pm|a|p)?$/;
+const MERIDIEM_RE = /^(am|pm)$/;
+const NAMED_TIMES = {noon: [12, 0], midnight: [0, 0]};
+
+const INVISIBLE_RE = /[\u200B-\u200D\u2060\uFEFF]/g;
+// eslint-disable-next-line no-control-regex -- control characters are what it removes
+const CONTROL_RE = /[\u0000-\u001F\u007F]/g;
+const FULLWIDTH = {'\uFF1A': ':', '\uFF20': '@', '\uFF0E': '.'};
+/** First code point ("zero") of Unicode decimal digit blocks. */
+const DIGIT_ZEROS = [
+    0x0660, 0x06F0, 0x07C0, 0x0966, 0x09E6, 0x0A66, 0x0AE6, 0x0B66, 0x0BE6, 0x0C66, 0x0CE6,
+    0x0D66, 0x0DE6, 0x0E50, 0x0ED0, 0x0F20, 0x1040, 0x17E0, 0x1810, 0xFF10,
+];
 
 const ok = spec => ({ok: true, spec});
 const fail = error => ({ok: false, error});
@@ -64,14 +94,20 @@ const fail = error => ({ok: false, error});
  * @returns {ParseResult}
  */
 export function parseInput(text) {
-    const tokens = String(text ?? '').trim().split(/\s+/).filter(Boolean);
+    const tokens = String(text ?? '')
+        .replace(INVISIBLE_RE, '')
+        .replace(CONTROL_RE, ' ')
+        .trim().split(/\s+/).filter(Boolean);
     if (tokens.length === 0)
         return fail(ParseError.EMPTY);
 
-    const first = tokens[0].toLowerCase();
-    if (first.startsWith('@') || first === 'at')
-        return parseAlarm(tokens);
-    return parseCountdown(tokens);
+    // What the time is read from; labels keep the original tokens.
+    const keys = tokens.map(toKey);
+    if (keys[0].startsWith('@') || keys[0] === 'at')
+        return parseAlarm(tokens, keys, true);
+    if (isClockWithMeridiem(keys))
+        return parseAlarm(tokens, keys, false);
+    return parseCountdown(tokens, keys);
 }
 
 /**
@@ -95,76 +131,131 @@ export function nextAlarmTime(hours, minutes, nowMs) {
     return {at: date.getTime(), tomorrow: true};
 }
 
-/** @param {string[]} tokens */
-function parseAlarm(tokens) {
-    const isAt = tokens[0].toLowerCase() === 'at';
-    const rest = tokens[0] === '@' || isAt
-        ? tokens.slice(1)
-        : [tokens[0].slice(1), ...tokens.slice(1)];
+/**
+ * Lower-case, with digits from other scripts and full-width ":@." turned
+ * into ASCII.
+ *
+ * @param {string} token
+ */
+function toKey(token) {
+    return token
+        .replace(/[\uFF1A\uFF20\uFF0E]/g, c => FULLWIDTH[c])
+        .replace(/\p{Nd}/gu, c => {
+            const point = c.codePointAt(0);
+            const zero = DIGIT_ZEROS.find(z => point >= z && point <= z + 9);
+            return zero === undefined ? c : String(point - zero);
+        })
+        .toLowerCase();
+}
 
-    const match = CLOCK_RE.exec(rest[0] ?? '') ?? COMPACT_CLOCK_RE.exec(rest[0] ?? '');
-    if (!match) {
-        // "at home" is not an alarm, just text without a time.
-        return fail(isAt ? ParseError.INVALID : ParseError.INVALID_TIME);
+/** "5pm", "5:30pm", "5:30 pm", "7 am": a clock time even without "@". */
+function isClockWithMeridiem(keys) {
+    const match = CLOCK_RE.exec(keys[0]) ?? COMPACT_CLOCK_RE.exec(keys[0]);
+    return Boolean(match && (match[3] || MERIDIEM_RE.test(keys[1] ?? '')));
+}
+
+/**
+ * @param {string[]} tokens - as typed
+ * @param {string[]} keys - normalised tokens
+ * @param {boolean} marked - starts with "@" or "at"
+ */
+function parseAlarm(tokens, keys, marked) {
+    const isAt = keys[0] === 'at';
+    let index = 0;
+    let clock = keys[0];
+    if (marked) {
+        if (keys[0] === '@' || isAt) {
+            index = 1;
+            clock = keys[1] ?? '';
+        } else {
+            clock = keys[0].slice(1);
+        }
     }
 
-    let used = 1;
-    let meridiem = match[3];
-    if (!meridiem && MERIDIEM_RE.test(rest[1] ?? '')) {
-        meridiem = rest[1];
-        used = 2;
-    }
+    let hours, minutes;
+    let used = index + 1;
+    if (clock in NAMED_TIMES) {
+        [hours, minutes] = NAMED_TIMES[clock];
+    } else {
+        const match = CLOCK_RE.exec(clock) ?? COMPACT_CLOCK_RE.exec(clock);
+        if (!match) {
+            // "at home" is not an alarm, just text without a time.
+            return fail(isAt ? ParseError.INVALID : ParseError.INVALID_TIME);
+        }
 
-    let hours = Number(match[1]);
-    const minutes = match[2] === undefined ? 0 : Number(match[2]);
-    if (minutes > 59)
-        return fail(ParseError.INVALID_TIME);
+        let meridiem = match[3];
+        if (!meridiem && MERIDIEM_RE.test(keys[used] ?? '')) {
+            meridiem = keys[used];
+            used++;
+        }
 
-    if (meridiem) {
-        if (hours < 1 || hours > 12)
+        hours = Number(match[1]);
+        minutes = match[2] === undefined ? 0 : Number(match[2]);
+        if (minutes > 59)
             return fail(ParseError.INVALID_TIME);
-        const pm = meridiem[0].toLowerCase() === 'p';
-        hours = (hours % 12) + (pm ? 12 : 0);
-    } else if (hours > 23) {
-        return fail(ParseError.INVALID_TIME);
+
+        if (meridiem) {
+            if (hours < 1 || hours > 12)
+                return fail(ParseError.INVALID_TIME);
+            hours = (hours % 12) + (meridiem[0] === 'p' ? 12 : 0);
+        } else if (hours > 23) {
+            return fail(ParseError.INVALID_TIME);
+        }
     }
 
-    const timeCount = tokens.length - rest.length + used;
     return ok({
         kind: 'alarm',
         hours,
         minutes,
-        label: makeLabel(tokens.slice(timeCount)),
-        timeText: tokens.slice(0, timeCount).join(' '),
+        label: makeLabel(tokens.slice(used)),
+        timeText: tokens.slice(0, used).join(' '),
     });
 }
 
-/** @param {string[]} tokens */
-function parseCountdown(tokens) {
+/**
+ * @param {string[]} tokens - as typed
+ * @param {string[]} keys - normalised tokens
+ */
+function parseCountdown(tokens, keys) {
+    // "in 5 min"
+    const start = keys[0] === 'in' && keys.length > 1 ? 1 : 0;
+    let index = start;
     let durationMs = 0;
-    let count = 0;
 
-    if (DIGITS_RE.test(tokens[0])) {
-        durationMs = digitsToMs(tokens[0]);
-        count = 1;
-    } else if (COLON_RE.test(tokens[0])) {
-        durationMs = colonsToMs(tokens[0]);
-        if (durationMs === null)
-            return fail(ParseError.INVALID);
-        count = 1;
-    } else {
-        const usedUnits = new Set();
-        while (count < tokens.length && UNIT_TOKEN_RE.test(tokens[count])) {
-            const ms = unitTokenToMs(tokens[count], usedUnits);
-            if (ms === null)
-                return fail(ParseError.INVALID);
-            durationMs += ms;
-            count++;
+    const usedUnits = new Set();
+    while (index < keys.length) {
+        // "5 min": a number followed by a unit word counts as one token.
+        let key = keys[index];
+        let width = 1;
+        if (NUMBER_RE.test(key) && UNIT_WORDS.has(keys[index + 1])) {
+            key += keys[index + 1];
+            width = 2;
         }
-        if (count === 0)
+        if (!UNIT_TOKEN_RE.test(key))
+            break;
+        const ms = unitTokenToMs(key, usedUnits);
+        if (ms === null)
             return fail(ParseError.INVALID);
+        durationMs += ms;
+        index += width;
     }
 
+    if (index === start) {
+        const key = keys[start];
+        if (DIGITS_RE.test(key)) {
+            durationMs = digitsToMs(key);
+        } else if (COLON_RE.test(key)) {
+            durationMs = colonsToMs(key);
+            if (durationMs === null)
+                return fail(ParseError.INVALID);
+        } else {
+            return fail(ParseError.INVALID);
+        }
+        index = start + 1;
+    }
+
+    // Decimals ("1.5h") can give fractions of a second.
+    durationMs = Math.round(durationMs / 1000) * 1000;
     if (durationMs === 0)
         return fail(ParseError.ZERO);
     if (durationMs > MAX_DURATION_MS)
@@ -173,8 +264,8 @@ function parseCountdown(tokens) {
     return ok({
         kind: 'countdown',
         durationMs,
-        label: makeLabel(tokens.slice(count)),
-        timeText: tokens.slice(0, count).join(' '),
+        label: makeLabel(tokens.slice(index)),
+        timeText: tokens.slice(0, index).join(' '),
     });
 }
 
@@ -196,8 +287,8 @@ function colonsToMs(text) {
 }
 
 /**
- * "1h30m", "45s", "1h30" (= 1 h 30 min). Each unit may appear once across
- * the whole duration; returns null otherwise.
+ * "1h30m", "45s", "1.5h", "1hr30min", "1h30" (= 1 h 30 min). Each unit may
+ * appear once across the whole duration; returns null otherwise.
  */
 function unitTokenToMs(token, usedUnits) {
     const [, unitPart, trailing] = UNIT_TOKEN_RE.exec(token);
@@ -208,13 +299,13 @@ function unitTokenToMs(token, usedUnits) {
         if (!unit || usedUnits.has(unit))
             return false;
         usedUnits.add(unit);
-        ms += Number(amount) * UNIT_MS[unit];
+        ms += Number(amount.replace(',', '.')) * UNIT_MS[unit];
         lastUnit = unit;
         return true;
     };
 
-    for (const [, amount, unit] of unitPart.matchAll(/(\d+)([hms])/gi)) {
-        if (!add(amount, unit.toLowerCase()))
+    for (const [, amount, word] of unitPart.matchAll(UNIT_PIECE_RE)) {
+        if (!add(amount, UNIT_WORDS.get(word)))
             return null;
     }
     if (trailing && !add(trailing, SMALLER_UNIT[lastUnit]))
@@ -224,8 +315,10 @@ function unitTokenToMs(token, usedUnits) {
 
 /** @param {string[]} words */
 function makeLabel(words) {
-    const label = words.join(' ');
+    let label = words.join(' ');
     if (!label)
         return null;
+    if (label.length > MAX_LABEL_LENGTH)
+        label = `${label.slice(0, MAX_LABEL_LENGTH - 1).trimEnd()}…`;
     return label[0].toLocaleUpperCase() + label.slice(1);
 }
