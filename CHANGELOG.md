@@ -5,6 +5,15 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-11-25
+
+### Fixed
+
+- Clean-ups found by Shexli, the static analyzer used for extensions.gnome.org
+  reviews: the time-zone watcher no longer calls `run_dispose()`, its signal
+  is disconnected explicitly in `disable()`, and Presets/Recent rows set their
+  accessible name directly. No visible change.
+
 ## [1.0.0] - 2026-11-25
 
 First release.
@@ -57,5 +66,6 @@ First release.
   GNOME Shell once per second however many there are.
 - Tested for memory leaks and with 20 000 generated inputs.
 
-[Unreleased]: https://github.com/Asadujjaman47/gnome-timers/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/Asadujjaman47/gnome-timers/compare/v1.0.1...HEAD
+[1.0.1]: https://github.com/Asadujjaman47/gnome-timers/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/Asadujjaman47/gnome-timers/releases/tag/v1.0.0

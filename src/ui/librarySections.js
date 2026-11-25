@@ -25,6 +25,8 @@ class TimersLibraryRow extends PopupMenu.PopupBaseMenuItem {
      */
     _init({name, icon, onActivate}) {
         super._init({style_class: 'timers-library-row'});
+        // PopupBaseMenuItem only accepts its own parameters, so set it here.
+        this.accessible_name = name;
         this.add_child(new St.Icon({gicon: icon, style_class: 'popup-menu-icon'}));
 
         const label = new St.Label({
@@ -34,7 +36,6 @@ class TimersLibraryRow extends PopupMenu.PopupBaseMenuItem {
         });
         label.clutter_text.ellipsize = Pango.EllipsizeMode.END;
         this.add_child(label);
-        this.label_actor = label;
 
         this.connect('activate', () => onActivate());
     }

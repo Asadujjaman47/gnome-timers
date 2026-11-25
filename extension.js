@@ -66,7 +66,7 @@ export default class TimersExtension extends Extension {
 
         // Alarms keep their local day and clock time when the time zone changes.
         this._timeZone = new TimeZoneWatcher();
-        this._timeZone.connect('changed', () => this._manager.retargetAlarms());
+        this._timeZoneId = this._timeZone.connect('changed', () => this._manager.retargetAlarms());
 
         // Keyboard shortcuts exist only while the screen is unlocked.
         this._keybindings = new Keybindings(storage.settings);
@@ -103,6 +103,8 @@ export default class TimersExtension extends Extension {
             this._sessionModeId = 0;
         }
         this._keybindings?.destroy();
+        if (this._timeZoneId)
+            this._timeZone.disconnect(this._timeZoneId);
         this._timeZone?.destroy();
         this._indicator?.destroy();
         this._library?.destroy();
@@ -116,6 +118,7 @@ export default class TimersExtension extends Extension {
         this._clockFormat?.destroy();
 
         this._keybindings = null;
+        this._timeZoneId = 0;
         this._timeZone = null;
         this._indicator = null;
         this._library = null;

@@ -27,11 +27,13 @@ export class TimeZoneWatcher {
         return this.#signals.connect(name, callback);
     }
 
+    disconnect(id) {
+        this.#signals.disconnect(id);
+    }
+
     destroy() {
         this.#clock.disconnect(this.#notifyId);
-        // A WallClock keeps an internal timeout running (and itself alive)
-        // until it is disposed; GNOME Shell's lock screen clock does the same.
-        this.#clock.run_dispose();
+        this.#clock = null;
         this.#signals.disconnectAll();
     }
 }
