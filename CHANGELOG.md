@@ -5,6 +5,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-11-25
+
 First release.
 
 ### Timers
@@ -54,3 +56,6 @@ First release.
 - Light on battery: nothing runs while no timer does, and running timers wake
   GNOME Shell once per second however many there are.
 - Tested for memory leaks and with 20 000 generated inputs.
+
+[Unreleased]: https://github.com/Asadujjaman47/gnome-timers/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/Asadujjaman47/gnome-timers/releases/tag/v1.0.0

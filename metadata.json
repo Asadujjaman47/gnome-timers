@@ -1,8 +1,8 @@
 {
   "uuid": "timers@asadujjaman47.github.io",
   "name": "Timers",
-  "description": "Run multiple countdown timers and clock-time alarms from the top panel. Label your timers, save presets, pick a sound per preset and restart recent timers with one click.",
-  "version-name": "0.1.0",
+  "description": "Multiple countdown timers and clock-time alarms in the top panel.\n\nType a time the way you say it, such as 5m, 12m pizza, 1.5h, 5 min, @14:30 or 7 am, and press Enter. Save presets with their own sound and keyboard shortcut, and start recent timers again with one click.\n\nQuiet by default: a finished timer plays its sound once, shows a notification and clears itself. Follows Do Not Disturb, the 12/24-hour clock and time zone changes, and keeps counting on the lock screen.",
+  "version-name": "1.0.0",
   "shell-version": ["46", "47", "48", "49", "50", "51"],
   "url": "https://github.com/Asadujjaman47/gnome-timers",
   "settings-schema": "org.gnome.shell.extensions.timers",
