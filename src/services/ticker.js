@@ -6,9 +6,10 @@ import {SignalEmitter} from '../core/signals.js';
 const SLACK_MS = 10;
 
 /**
- * Drives the timers: wakes exactly when a running timer's displayed second
- * changes, calls `manager.update()`, and emits `tick`. With no running
- * timers it schedules nothing at all.
+ * Drives the timers: wakes when the soonest-ending timer's displayed second
+ * changes (once per second, however many timers run), calls
+ * `manager.update()`, and emits `tick`. With no running timers it schedules
+ * nothing at all.
  *
  * Signal: `tick` ().
  */

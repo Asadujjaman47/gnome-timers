@@ -13,7 +13,8 @@ Supports GNOME Shell 46–51.
 ## Features
 
 - **Several timers at once**, each with an optional name: `12m pizza`
-- **Alarms at a clock time**: `@14:30`, `@1010pm`, `at 7 am wake up`
+- **Type it the way you say it**: `5 min`, `2 hours`, `1.5h`, `in 10 min tea`
+- **Alarms at a clock time**: `@14:30`, `7 am`, `5:30 pm`, `@1010pm`, `@noon`
 - **Presets**: saved timers started with one click or their own keyboard
   shortcut, each with its own sound
 - **Recent** timers, started again with one click
@@ -23,6 +24,8 @@ Supports GNOME Shell 46–51.
 - Follows **Do Not Disturb**, the 12/24-hour clock setting and **time zone**
   changes
 - Keeps counting on the **lock screen** and across GNOME Shell restarts
+- **Light on battery**: nothing runs while no timer does, and running timers
+  wake GNOME Shell once per second however many there are
 
 ## Usage
 
@@ -34,11 +37,18 @@ time. A preview under the input shows how it is understood.
 | You type | You get |
 |---|---|
 | `5m`, `90s`, `1h30m`, `5h 30m` | a countdown; units in any order |
+| `5 min`, `10 minutes`, `2 hours`, `1hr30min` | the same, with unit words |
+| `1.5h`, `2,5 min` | decimals: 1 h 30 min, 2 min 30 s |
+| `in 5 min` | "in" is optional |
 | `1:30`, `1:02:03` | minutes:seconds, or hours:minutes:seconds |
 | `5`, `130`, `53000` | digits only: the last two are seconds → 0:05, 1:30, 5:30:00 |
 | `12m pizza` | a countdown named "Pizza" |
-| `@14:30`, `@1010pm`, `at 7 am` | an alarm at that time (tomorrow if it has passed) |
+| `@14:30`, `at 14:30`, `@1010pm`, `@noon` | an alarm at that time (tomorrow if it has passed) |
+| `5pm`, `5:30 pm`, `7 am` | an alarm; with am/pm the `@` is not needed |
 | `@14:30 meeting` | an alarm named "Meeting" |
+
+Digits from other scripts work too (for example Bengali `৫m`). Without am/pm,
+a colon time such as `14:30` is a countdown, so use `@14:30` for an alarm.
 
 Each timer in the menu can be paused, resumed or stopped. The panel shows
 the timer that ends soonest and how many others are running.
@@ -83,6 +93,7 @@ make test         # unit tests only; `gjs -m tests/run.js parser` filters by fil
 make pack         # build build/timers@asadujjaman47.github.io.shell-extension.zip
 make run          # start a nested GNOME Shell with the extension (own settings)
 make screenshots  # headless screenshots in several styles, plus lock-screen checks
+make qa           # headless storage, memory-leak and power checks (~9 min)
 make pot          # regenerate the translation template
 ```
 
@@ -97,6 +108,12 @@ It uses `gnome-shell --devkit` on GNOME 49+ (install `mutter-devkit`, e.g.
 helper extension (`tools/screenshots/driver/`) that drives the menu in the
 dark, light, high-contrast and large-text styles and saves screenshots to
 `build/screenshots/`.
+
+`make qa` uses the same helper to type inputs into the real menu and check
+what is saved and restored after a restart, to run hundreds of rounds of use
+and check that every row, timer and notification is freed and memory stops
+growing, and to measure CPU time and wakeups per second. Results are in
+`build/qa/driver.log`; `TIMERS_QA_PARTS=storage,memory,power` picks parts.
 
 `tools/compat/run.sh <target>` runs the same checks against another GNOME
 Shell version in a podman container (output in `build/compat/<target>/`; no
@@ -126,8 +143,8 @@ journalctl -f -o cat /usr/bin/gnome-shell
 | `src/services/` | GNOME integrations: settings, sound, notifications, shortcuts |
 | `src/ui/` | Panel button and menu (GNOME Shell widgets) |
 | `src/prefs/` | Preferences window pages (GTK 4 / libadwaita) |
-| `tests/` | GJS test runner and tests |
-| `tools/` | Development scripts (nested session, screenshots, fallback sound) |
+| `tests/` | GJS test runner, unit tests and a fuzz test for the input parser |
+| `tools/` | Development scripts: nested session, screenshots and QA, other GNOME versions, fallback sound |
 
 ESLint enforces the layering: `src/core` cannot import `gi://` or
 `resource://` modules, preferences code cannot import GNOME Shell modules, and

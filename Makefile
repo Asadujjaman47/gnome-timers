@@ -15,15 +15,17 @@ NESTED_FLAG := $(shell gnome-shell --help 2>/dev/null | grep -q -- --devkit && e
 
 help:
 	@echo "Targets:"
-	@echo "  check      lint + tests + schema check (what CI runs)"
-	@echo "  lint       ESLint"
-	@echo "  test       unit tests (gjs)"
-	@echo "  pack       build $(ZIP)"
-	@echo "  install    pack and install for the current user"
-	@echo "  enable     enable the extension (after re-login on Wayland)"
-	@echo "  run        start a nested GNOME Shell with the extension (own settings in build/run)"
-	@echo "  pot        regenerate po/timers.pot"
-	@echo "  clean      remove build output"
+	@echo "  check        lint + tests + schema check (what CI runs)"
+	@echo "  lint         ESLint"
+	@echo "  test         unit tests (gjs)"
+	@echo "  pack         build $(ZIP)"
+	@echo "  install      pack and install for the current user"
+	@echo "  enable       enable the extension (a first install loads immediately)"
+	@echo "  run          start a nested GNOME Shell with the extension (own settings in build/run)"
+	@echo "  screenshots  headless screenshots in several styles (build/screenshots)"
+	@echo "  qa           headless storage, memory-leak and power checks, ~9 min (build/qa)"
+	@echo "  pot          regenerate po/timers.pot"
+	@echo "  clean        remove build output"
 
 check: lint test schemas-check
 

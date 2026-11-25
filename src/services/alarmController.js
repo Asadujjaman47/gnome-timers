@@ -6,7 +6,7 @@ import {resolveSound} from './sounds.js';
  *
  * - default: play the sound once, show a notification, and remove the timer
  *   right away; the notification stays in GNOME's notification list
- * - "repeat until dismissed": loop the sound and keep the timer ("ringing")
+ * - "Repeat until stopped": loop the sound and keep the timer ("ringing")
  *   until it is stopped from the menu or the notification
  */
 export class AlarmController {
@@ -18,7 +18,7 @@ export class AlarmController {
     #formatter;
     #clockFormat;
     #extensionDir;
-    /** Ids of timers that are ringing until dismissed. */
+    /** Ids of timers that are ringing until stopped. */
     #ringing = new Set();
     #ids = [];
 
