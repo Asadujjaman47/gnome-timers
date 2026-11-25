@@ -168,12 +168,45 @@ test('nextWakeupMs: when the displayed second changes; null when idle', () => {
     assert.equal(manager.nextWakeupMs(), 0);
 });
 
-test('nextWakeupMs takes the soonest change across timers', () => {
+test('nextWakeupMs follows the soonest-ending timer only (one wakeup per second)', () => {
     const {clock, manager} = setup();
-    start(manager, '5s');
+    start(manager, '20s');
+    clock.advance(700);
+    const sooner = start(manager, '10s');
+    // The 20 s timer's seconds would change in 300 ms, but only the timer
+    // that ends first decides: 1000 ms.
+    assert.equal(manager.nextWakeupMs(), 1000);
+
     clock.advance(400);
-    start(manager, '5s');
     assert.equal(manager.nextWakeupMs(), 600);
+
+    manager.stop(sooner.id);
+    assert.equal(manager.nextWakeupMs(), 900);
+});
+
+test('with many timers, a full minute takes about 60 wakeups', () => {
+    const {clock, manager} = setup();
+    for (let i = 0; i < 5; i++) {
+        start(manager, `${10 + i}m`);
+        clock.advance(190);
+    }
+    let wakeups = 0;
+    const end = clock.now() + 60_000;
+    while (clock.now() < end) {
+        clock.advance(manager.nextWakeupMs());
+        manager.update();
+        wakeups++;
+    }
+    assert.ok(wakeups >= 60 && wakeups <= 61, `wakeups: ${wakeups}`);
+});
+
+test('a paused soonest timer does not count; the next running one does', () => {
+    const {clock, manager} = setup();
+    const first = start(manager, '10s');
+    clock.advance(300);
+    start(manager, '20s');
+    manager.pause(first.id);
+    assert.equal(manager.nextWakeupMs(), 1000);
 });
 
 test('load() replaces timers; update() then reports ones that ended meanwhile', () => {

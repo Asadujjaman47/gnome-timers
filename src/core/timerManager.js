@@ -182,22 +182,27 @@ export class TimerManager {
     }
 
     /**
-     * Milliseconds until a running timer's displayed seconds change (or it
-     * finishes), so the ticker can wake exactly then. Null when nothing runs.
+     * Milliseconds until the ticker should wake: when the displayed seconds of
+     * the soonest-ending running timer change (or it finishes). Null when
+     * nothing runs.
+     *
+     * Only that timer counts, so the ticker wakes once per second however
+     * many timers run (each wakeup costs battery). Other timers end later, so
+     * they are never missed; their rows are redrawn on the same ticks.
      *
      * @returns {number|null}
      */
     nextWakeupMs() {
         const now = this.now();
-        let next = null;
+        let soonest = null;
         for (const timer of this.#timers.values()) {
-            if (!timer.isRunning)
-                continue;
-            const remaining = timer.remainingAt(now);
-            const wait = remaining % 1000 || Math.min(remaining, 1000);
-            next = next === null ? wait : Math.min(next, wait);
+            if (timer.isRunning && (soonest === null || timer.endsAt < soonest.endsAt))
+                soonest = timer;
         }
-        return next;
+        if (soonest === null)
+            return null;
+        const remaining = soonest.remainingAt(now);
+        return remaining % 1000 || Math.min(remaining, 1000);
     }
 
     /**
