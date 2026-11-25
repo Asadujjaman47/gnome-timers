@@ -5,7 +5,8 @@
 # touched. Output: build/screenshots/*.png and driver.log.
 #
 # Usage: tools/screenshots/run.sh <extension zip> <uuid>
-# TIMERS_SCREENSHOTS_OUT overrides the output folder.
+# TIMERS_SCREENSHOTS_OUT overrides the output folder, TIMERS_DRIVER_SCENARIO=qa
+# runs the storage/memory/power checks instead (tools/screenshots/driver/qa.js).
 set -euo pipefail
 
 ZIP=$(realpath "$1")
@@ -17,7 +18,7 @@ DRIVER_UUID=timers-screenshot-driver@asadujjaman47.github.io
 
 rm -rf "$OUT" "$WORK"
 mkdir -p "$OUT" "$WORK/data" "$WORK/config" "$WORK/cache"
-gnome-extensions pack --force --out-dir="$WORK" "$ROOT/tools/screenshots/driver" >/dev/null
+gnome-extensions pack --force --out-dir="$WORK" --extra-source=qa.js "$ROOT/tools/screenshots/driver" >/dev/null
 
 # The Wayland socket path must stay under 108 bytes, so use a short runtime dir.
 RUNTIME=/run/user/$(id -u)/timers-shots-$$
@@ -38,7 +39,9 @@ env -u WAYLAND_DISPLAY -u DISPLAY \
         gnome-shell --headless --wayland --no-x11 --virtual-monitor 1280x800 \
             >"$TIMERS_SCREENSHOT_DIR/shell.log" 2>&1 &
         shell=$!
-        for _ in $(seq 1 120); do
+        # Never leave the shell running, even when interrupted.
+        trap "kill $shell 2>/dev/null" EXIT INT TERM
+        for _ in $(seq 1 "${TIMERS_DRIVER_TIMEOUT:-120}"); do
             grep -qx DONE "$TIMERS_SCREENSHOT_DIR/driver.log" 2>/dev/null && break
             sleep 1
         done

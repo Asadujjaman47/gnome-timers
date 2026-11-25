@@ -28,7 +28,11 @@ export default class ScreenshotDriver extends Extension {
         if (!this._out || started.query_exists(null))
             return;
         started.create(Gio.FileCreateFlags.NONE, null).close(null);
-        this._run()
+        const scenario = GLib.getenv('TIMERS_DRIVER_SCENARIO') ?? 'screenshots';
+        const run = scenario === 'qa'
+            ? import('./qa.js').then(({Qa}) => new Qa(text => this._log(text)).run())
+            : this._run();
+        run
             .catch(e => this._log(`ERROR ${e}\n${e.stack}`))
             .finally(() => this._log('DONE'));
     }

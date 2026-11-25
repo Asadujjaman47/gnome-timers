@@ -10,7 +10,7 @@ PACK_SOURCES := metadata.json stylesheet.css $(JS_SOURCES) \
 # GNOME 49+ replaced `gnome-shell --nested` with `--devkit` (needs mutter-devkit).
 NESTED_FLAG := $(shell gnome-shell --help 2>/dev/null | grep -q -- --devkit && echo --devkit || echo --nested)
 
-.PHONY: help check lint test schemas schemas-check pack install enable disable screenshots \
+.PHONY: help check lint test schemas schemas-check pack install enable disable screenshots qa \
         uninstall run pot clean
 
 help:
@@ -80,3 +80,7 @@ clean:
 
 screenshots: pack
 	tools/screenshots/run.sh $(ZIP) $(UUID)
+
+qa: pack
+	TIMERS_DRIVER_SCENARIO=qa TIMERS_DRIVER_TIMEOUT=2400 TIMERS_SCREENSHOTS_OUT=$(CURDIR)/build/qa \
+		tools/screenshots/run.sh $(ZIP) $(UUID)
