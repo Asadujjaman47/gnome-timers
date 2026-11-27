@@ -24,7 +24,34 @@ gnome-extensions pack --force --out-dir="$WORK" --extra-source=qa.js "$ROOT/tool
 RUNTIME=/run/user/$(id -u)/timers-shots-$$
 mkdir -p "$(dirname "$RUNTIME")"
 mkdir -m 700 "$RUNTIME"
-trap 'rm -rf "${RUNTIME:?}"' EXIT
+# Processes started in the test session (e.g. the document portal) carry its
+# runtime dir; they are stopped and the portal's FUSE mount at $RUNTIME/doc is
+# unmounted, or the folder could not be removed. Cleanup never changes the
+# script's exit status: under `set -e` a failing command here would.
+session_pids() {
+    local environ pid
+    for environ in /proc/[0-9]*/environ; do
+        pid=${environ#/proc/}
+        pid=${pid%/environ}
+        [[ $pid == "$$" || $pid == "$BASHPID" ]] && continue
+        if { tr '\0' '\n' <"$environ"; } 2>/dev/null | grep -qx "XDG_RUNTIME_DIR=$RUNTIME"; then
+            echo "$pid"
+        fi
+    done
+}
+
+cleanup() {
+    local status=$? pids
+    mapfile -t pids < <(session_pids || true)
+    if [[ ${#pids[@]} -gt 0 ]]; then
+        kill -TERM "${pids[@]}" 2>/dev/null || true
+        sleep 1
+    fi
+    fusermount3 -u "$RUNTIME/doc" 2>/dev/null || fusermount -u "$RUNTIME/doc" 2>/dev/null || true
+    rm -rf "${RUNTIME:?}" 2>/dev/null || true
+    return "$status"
+}
+trap cleanup EXIT
 
 env -u WAYLAND_DISPLAY -u DISPLAY \
     XDG_DATA_HOME="$WORK/data" XDG_CONFIG_HOME="$WORK/config" XDG_CACHE_HOME="$WORK/cache" \
@@ -40,7 +67,7 @@ env -u WAYLAND_DISPLAY -u DISPLAY \
             >"$TIMERS_SCREENSHOT_DIR/shell.log" 2>&1 &
         shell=$!
         # Never leave the shell running, even when interrupted.
-        trap "kill $shell 2>/dev/null" EXIT INT TERM
+        trap "kill $shell 2>/dev/null || true" EXIT INT TERM
         for _ in $(seq 1 "${TIMERS_DRIVER_TIMEOUT:-120}"); do
             grep -qx DONE "$TIMERS_SCREENSHOT_DIR/driver.log" 2>/dev/null && break
             sleep 1
