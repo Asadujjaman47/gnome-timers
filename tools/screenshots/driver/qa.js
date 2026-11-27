@@ -83,7 +83,9 @@ export class Qa {
 
     async run() {
         await wait(1500);
-        const parts = (GLib.getenv('TIMERS_QA_PARTS') ?? 'storage,memory,power').split(',');
+        const parts = (GLib.getenv('TIMERS_QA_PARTS') ?? 'leak,storage,memory,power').split(',');
+        if (parts.includes('leak'))
+            await this._leak();
         if (parts.includes('storage'))
             await this._storage();
         if (parts.includes('memory'))
@@ -91,6 +93,29 @@ export class Qa {
         if (parts.includes('power'))
             await this._power();
         this._log(`QA RESULT: ${this._failures === 0 ? 'all checks passed' : `${this._failures} check(s) FAILED`}`);
+    }
+
+    /** Disabling the extension must free its objects (indicator, manager…). */
+    async _leak() {
+        this._log('== leak');
+        const refs = [];
+        for (let i = 0; i < 3; i++) {
+            const timers = await this._timers();
+            timers._library.startInput('5m');
+            timers._indicator.menu.open();
+            await wait(200);
+            timers._indicator.menu.close();
+            for (const key of ['_indicator', '_manager', '_ticker', '_library'])
+                refs.push([key, new WeakRef(timers[key])]);
+            for (const timer of timers._manager.timers)
+                timers._manager.stop(timer.id);
+            await this._restart();
+        }
+        await collectGarbage();
+        await collectGarbage();
+        const alive = refs.filter(([, ref]) => ref.deref() !== undefined).map(([key]) => key);
+        this._check(alive.length === 0,
+            `after 3 disable/enable cycles nothing is left: ${alive.length ? alive.join(' ') : 'none alive'}`);
     }
 
     /** Typing into the menu entry, then saving and restoring. */
