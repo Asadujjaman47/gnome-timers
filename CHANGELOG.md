@@ -5,6 +5,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Fixed
+
+- Turning the extension off now frees its panel button, timers list and
+  menu. GNOME Shell's panel kept a reference to every removed panel menu, so
+  each disable left the old objects in memory until logout.
+
 ## [1.0.1] - 2026-11-25
 
 ### Fixed

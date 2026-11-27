@@ -234,6 +234,16 @@ class TimersIndicator extends PanelMenu.Button {
         this._clockFormat.disconnect(this._clockFormatId);
         this._library.disconnect(this._libraryId);
         Main.sessionMode.disconnect(this._sessionModeId);
+
+        // GNOME Shell's panel connects to the menu with connectObject(…, panel)
+        // (Panel._onMenuSet, GNOME 46–51). That registers the menu in the
+        // global signal tracker until the *panel* is destroyed, so a destroyed
+        // indicator, and everything it refers to, would stay in memory after
+        // every disable. Close the menu first so the panel still sees it
+        // close, then drop that connection.
+        this.menu?.close();
+        this.menu?.disconnectObject(Main.panel);
+
         super._onDestroy();
     }
 });
